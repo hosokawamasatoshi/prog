@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>myMemoPad</title>
+	<script src="js/jquery-2.1.3.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+	<link rel="stylesheet" href="css/sample.css">
+</head>
+<body>
+<header><h1>シンプルポストイット</h1></header>
+<main>
+<div id="control_wrap">
+    <input type="button" id="new" value="New">
+    <input type="button" id="clear" value="All Clear">
+</div>
+<div id="whiteboard_wrap">
+<!-- ここにポストイットを貼り付ける -->
+</div>
+</body>
+<script>
+	
+//今日の日付を取得
+let date = new Date();
+function sampleDate(date, format) {
+	format = format.replace(/YYYY/, date.getFullYear());
+	format = format.replace(/MM/, date.getMonth() + 1);
+	format = format.replace(/DD/, date.getDate());
+	return format;
+}
+postday = sampleDate(date, 'YYYY-MM-DD');
+
+//ローカルストレージにデータがある場合、postitsにオブジェクトが入った配列postitsを保存
+let postits = []; //オブジェクトを保存する配列を宣言
+if(!localStorage.getItem("postits")){
+	postits=[]; console.log("lsにデータなし");
+}else{
+	postits = JSON.parse(localStorage.getItem("postits")); //配列postitsをJSON形式で入力
+	console.log("lsからデータ取得");
+	console.log(postits);
+	console.log(localStorage.length);
+}
+let count = ""; //localdataを受け取る空の変数宣言
+if(!localStorage.getItem('count')) {count = 0; //データがない場合
+} else {count = Number(localStorage.getItem('count'));} //データがある場合、数値として変数countに入力
+
+//新しいポストイット用HTML
+function addNewPostit(){
+	return  '<div class="newpostit">' + 
+			'<input type="text" id="title" placeholder="タイトル">' +
+			'<textarea name="textarea" id="textarea" cols="30" rows="10"></textarea>' +
+			'<form name="form1" id="weight">' +
+				'<input type="radio" class="stars" name="star" value="1" id="star1" checked>★</input>' +
+				'<input type="radio" class="stars" name="star" value="2" id="star2">★★</input>' +
+				'<input type="radio" class="stars" name="star" value="3" id="star3">★★★</input>' +
+			'</form>' +
+			'<p>〆</p><input type="date" id="deadline">' +
+			'<input class="close_button" id="close_button" type="button" value="Close">' +
+			'<input class="save_button" id="save_button" type="button" value="SAVE">' +
+			'<input class="delete_button" id="delete_button" type="button" value="Delete">' +
+		'</div>';
+}
+
+//オブジェクトを作るファンクション
+function addPostit(p,w,d,ttl,ta){ 
+	this.postday = p;
+	this.weight = w;
+	this.deadline = d;
+	this.title = ttl;
+	this.textarea = ta;
+}
+
+//リロード読み込み localStorageデータ取得・表示
+for(let i=1;i<postits.length;i++){
+	var $newpostit = $(addNewPostit());
+	$('#whiteboard_wrap').append($newpostit);
+	
+	$newpostit.children("#title").val(postits[i].title);
+	$newpostit.children('#weight').val(postits[i].weight);
+	$newpostit.children('#deadline').val(postits[i].deadline);
+	$newpostit.children('#textarea').val(postits[i].textarea);
+	$newpostit.draggable();
+	
+	$newpostit.children("#close_button").on('click', function(){
+		$(this).siblings('#textarea,#weight,p,#deadline').css("display","none"); //タイトル以外を非表示
+		$(this).siblings('#save_button,#delete_button').css("display","none");
+		$(this).css("display","none");
+		$(this).siblings('#title').draggable(); //編集不可
+		$(this).siblings('#title').prop("disabled",true); //編集不可
+		$(this).siblings('#title').css("border","none");
+	});
+	$newpostit.on("dblclick",function(){;
+		$(this).children('#textarea,#weight,#deadline,#save_button').css("display","block"); //タイトル以外を表示
+		$(this).children('#delete_button,#close_button').css("display","block");
+		$(this).children('#title').prop("disabled",false); //編集可
+		$(this).children('#title').css("border","1px solid #0d7dfd");
+	});
+
+	//SAVE クリックイベント
+	$newpostit.children("#save_button").on('click', function(){
+		// let weight = $newpostit.children('input:radio[name="star"]:checked'); //ラジオボタンのvalueを取得 
+		let deadline = $newpostit.children("#deadline").val();
+		let title = $newpostit.children("#title").val();
+		let textarea = $newpostit.children("#textarea").val();
+	
+	//オブジェクトを作成して配列に入力
+		postits[count] = new addPostit(postday,weight,deadline,title,textarea);	
+		console.log("オブジェクトを配列に保存");
+		console.log(postits);
+
+	//ローカルストレージにデータを保存
+		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
+		console.log("配列をlocalStrageに保存");
+	});
+
+	//delete クリックイベント ポストイットを削除
+	$newpostit.children("#delete_button").on('click', function(){
+		$(this).parents('.newpostit').remove();
+	});
+};
+
+//new  クリックイベント 新しいポストイットを追加
+$('#new').on('click', function(){
+	count ++;
+	var $newpostit = $(addNewPostit());
+	$newpostit.draggable();
+	$newpostit.children("#close_button").on('click', function(){
+		$(this).siblings('#textarea,#weight,p,#deadline').css("display","none"); //タイトル以外を非表示
+		$(this).siblings('#save_button,#delete_button').css("display","none");
+		$(this).css("display","none");
+		$(this).siblings('#title').draggable(); //編集不可
+		$(this).siblings('#title').prop("disabled",true); //編集不可
+		$(this).siblings('#title').css("border","none");
+	});
+	$newpostit.on("dblclick",function(){;
+		$(this).children('#textarea,#weight,#deadline,#save_button').css("display","block"); //タイトル以外を表示
+		$(this).children('#delete_button,#close_button').css("display","block");
+		$(this).children('#title').prop("disabled",false); //編集可
+		$(this).children('#title').css("border","1px solid #0d7dfd");
+	});
+
+	//SAVE クリックイベント
+	$newpostit.children("#save_button").on('click', function(){
+		// let weight = $newpostit.children('input:radio[name="star"]:checked'); //ラジオボタンのvalueを取得 
+		let deadline = $newpostit.children("#deadline").val();
+		let title = $newpostit.children("#title").val();
+		let textarea = $newpostit.children("#textarea").val();
+	
+	//オブジェクトを作成して配列に入力
+		console.log(count);
+		console.log(typeof count);
+
+		postits[count] = new addPostit(postday,weight,deadline,title,textarea);	
+		console.log("オブジェクトを配列に保存");
+		console.log(postits);
+
+		//ローカルストレージにデータを保存
+		localStorage.setItem('count', count); //変数countをキーcountでlocalstrageに保存
+		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
+		console.log("配列をlocalStrageに保存");
+	});
+
+	//delete クリックイベント ポストイットを削除
+	$newpostit.children("#delete_button").on('click', function(){
+		$(this).parents('.newpostit').remove();
+	});
+
+	$('#whiteboard_wrap').append($newpostit);
+});
+
+//clear クリックイベント 全てのポストイットを削除
+$("#clear").on("click",function(){
+	localStorage.removeItem("postits");
+	localStorage.removeItem("count");
+	$("#whiteboard_wrap").empty();
+});
+
+</script>
+</main>
+</html>
