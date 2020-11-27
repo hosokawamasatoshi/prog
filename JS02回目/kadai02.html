@@ -40,9 +40,13 @@ if(!localStorage.getItem("postits")){
 	console.log(postits);
 	console.log(localStorage.length);
 }
+
 let count = ""; //localdataを受け取る空の変数宣言
 if(!localStorage.getItem('count')) {count = 0; //データがない場合
 } else {count = Number(localStorage.getItem('count'));} //データがある場合、数値として変数countに入力
+let datanumber = 0; //配列に保存されているデータ数
+if(!localStorage.getItem('datanumber')) {datanumber = 0; 
+} else {count = Number(localStorage.getItem('datanumber'));} 
 
 //新しいポストイット用HTML
 function addNewPostit(){
@@ -71,7 +75,7 @@ function addPostit(p,w,d,ttl,ta){
 }
 
 //リロード読み込み localStorageデータ取得・表示
-for(let i=1;i<postits.length;i++){
+for(let i=0;i<postits.length;i++){
 	var $newpostit = $(addNewPostit());
 	$('#whiteboard_wrap').append($newpostit);
 	
@@ -154,10 +158,25 @@ $('#new').on('click', function(){
 		console.log("オブジェクトを配列に保存");
 		console.log(postits);
 
+		//配列からタイトルがnullのデータを削除
+		console.log("postits.length="+postits.length);
+		console.log("datanumber="+datanumber);
+		console.log("count="+count);
+		console.log("postits[1]="+postits[0]);
+		console.log("postits[2]="+postits[1]);
+		console.log("postits[3]="+postits[2]);
+		console.log("postits[4]="+postits[3]);
+		
+		postits = postits.filter(Boolean);
+
+		console.log("postits.length="+postits.length);
+		console.log("datanumber="+datanumber);
+	
 		//ローカルストレージにデータを保存
 		localStorage.setItem('count', count); //変数countをキーcountでlocalstrageに保存
 		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
 		console.log("配列をlocalStrageに保存");
+		console.log("datanumber="+postits);
 	});
 
 	//delete クリックイベント ポストイットを削除
