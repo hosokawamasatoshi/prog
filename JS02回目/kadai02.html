@@ -37,6 +37,7 @@ if(!localStorage.getItem("postits")){
 }else{
 	postits = JSON.parse(localStorage.getItem("postits")); //配列postitsをJSON形式で入力
 	console.log("lsからデータ取得");
+	postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
 	console.log(postits);
 	console.log(postits.length);
 }
@@ -118,10 +119,7 @@ for(let i=0;i<postits.length;i++){
 		let deadline = $(this).siblings("#deadline").val();
 		let title = $(this).siblings("#title").val();
 		let textarea = $(this).siblings("#textarea").val();
-		// let top = off.top;
-		// let left = off.left;
-		// console.log('top: ' + off.top);
-		// console.log('left: ' + off.left);
+
 	
 	//オブジェクトを作成して配列に入力
 		postits[index] = new addPostit(postday,weight,deadline,title,textarea,index);
@@ -133,14 +131,12 @@ for(let i=0;i<postits.length;i++){
 
 	//ローカルストレージにデータを保存
 		postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
-		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
 		console.log("配列をlocalStrageに保存");
 	});
 
 	//delete クリックイベント ポストイットを削除
 	$newpostit.children("#delete_button").on('click', function(){
 		postits.splice(index, 1);
-		postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
 		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
 		console.log("配列をlocalStrageに保存");
 		$(this).parents('.newpostit').remove();
@@ -149,9 +145,11 @@ for(let i=0;i<postits.length;i++){
 
 //new  クリックイベント 新しいポストイットを追加
 $('#new').on('click', function(){
+	console.log("#new click");
 	let index = datanumber;
 	datanumber ++;
 	var $newpostit = $(addNewPostit());
+	$newpostit.index = index;
 	$newpostit.draggable();
 
 	//closeボタンクリックで閉じる
@@ -173,46 +171,32 @@ $('#new').on('click', function(){
 	//SAVE クリックイベント
 	$newpostit.children("#save_button").on('click', function(){
 		// let weight = $newpostit.children('input:radio[name="star"]:checked'); //ラジオボタンのvalueを取得 
-		let deadline = $newpostit.children("#deadline").val();
-		let title = $newpostit.children("#title").val();
-		let textarea = $newpostit.children("#textarea").val();
-		// var off = $newpostit.parents('.newpostit').offset();
-		// console.log(off);
-		// let top = off.top;
-		// let left = off.left;	
-		// console.log('top: ' + off.top);
-		// console.log('left: ' + off.left);
+		let deadline = $(this).siblings("#deadline").val();
+		let title = $(this).siblings("#title").val();
+		let textarea = $(this).siblings("#textarea").val();
 
 	//オブジェクトを作成して配列に入力
-		postits[index] = new addPostit(postday,weight,deadline,title,textarea);	
 		console.log("#newのオブジェクトを配列に保存");
-		console.log(postits);
+		console.log("$newpostit.index="+$newpostit.index);
+		postits[$newpostit.index] = new addPostit(postday,weight,deadline,title,textarea);	
+		console.log("postits[0]="+postits[0]);
+		console.log("postits[1]="+postits[1]);
+		console.log("postits[2]="+postits[2]);
+		console.log("postits[3]="+postits[3]);
 
 		//配列整理（＊タイトル未入力は非対応＊）
-		postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
+		// postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
 		console.log("postits.length="+postits.length);
-		console.log("datanumber="+datanumber); //確認
-		console.log("postits[1]="+postits[0]);
-		console.log("postits[2]="+postits[1]);
-		console.log("postits[3]="+postits[2]);
-		console.log("postits[4]="+postits[3]);
+		console.log("保存後のdatanumber="+datanumber); //確認
 		
 		//ローカルストレージにデータを保存
-		// localStorage.setItem('count', count); //変数countをキーcountでlocalstrageに保存
 		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
 		console.log("配列をlocalStrageに保存");
 	});
 
-	// //delete クリックイベント ポストイットを削除
-	// $newpostit.children("#delete_button").on('click', function(){
-	// 	$(this).parents('.newpostit').remove();
-	// 	console.log($(this).datanumber);	
-	// 	postits[$(this).datanumber] = [];
-	// });
 	//delete クリックイベント ポストイットを削除
 	$newpostit.children("#delete_button").on('click', function(){
 		postits.splice(index, 1);
-		postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
 		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
 		console.log("配列をlocalStrageに保存");
 		$(this).parents('.newpostit').remove();
