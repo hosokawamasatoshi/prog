@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>myMemoPad</title>
+	<title>Simple Post-it</title>
 	<script src="js/jquery-2.1.3.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 	<link rel="stylesheet" href="css/sample.css">
@@ -28,23 +28,18 @@ function sampleDate(date, format) {
 	format = format.replace(/DD/, date.getDate());
 	return format;
 }
-postday = sampleDate(date, 'YYYY-MM-DD');
+let postday = sampleDate(date, 'YYYY-MM-DD');
 
-//ローカルストレージにデータがある場合、postitsにオブジェクトが入った配列postitsを保存
+//ローカルストレージにデータがある場合、オブジェクトが入った配列postitsをpostitsに代入
 let postits = []; //オブジェクトを保存する配列を宣言
 if(!localStorage.getItem("postits")){
 	console.log("lsにデータなし");
 }else{
-	postits = JSON.parse(localStorage.getItem("postits")); //配列postitsをJSON形式で入力
+	postits = JSON.parse(localStorage.getItem("postits")); //JSON形式の文字列をJavaScriptのJSONオブジェクトに変換
 	console.log("lsからデータ取得");
-	postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
+	postits = postits.filter(Boolean); //配列の整理 0, null, undefined ,空文字列等を削除
 	console.log(postits);
-	console.log(postits.length);
 }
-
-// let count = ""; //サンプル
-// if(!localStorage.getItem('count')) {count = 0; 
-// } else {count = Number(localStorage.getItem('count'));}
 
 let datanumber; //配列に保存されているオブジェクト数
 if(!localStorage.getItem("postits")){
@@ -52,164 +47,243 @@ if(!localStorage.getItem("postits")){
 }else{
 	datanumber = postits.length;
 } 
-console.log("datanumber="+datanumber);
 
 //新しいポストイット作成用追加HTML
 function addNewPostit(){
 	return  '<div class="newpostit">' + 
-			'<input type="text" id="title" placeholder="タイトル">' +
+			'<input type="text" id="title" placeholder="Title">' +
 			'<textarea name="textarea" id="textarea" cols="30" rows="10"></textarea>' +
-			'<form name="form1" id="weight">' +
-				'<input type="radio" class="stars" name="star" value="1" id="star1" checked>★</input>' +
-				'<input type="radio" class="stars" name="star" value="2" id="star2">★★</input>' +
-				'<input type="radio" class="stars" name="star" value="3" id="star3">★★★</input>' +
-			'</form>' +
-			'<p>〆</p><input type="date" id="deadline">' +
-			'<input class="close_button" id="close_button" type="button" value="Close">' +
+			// '<form name="form1" id="weight">' +
+			// 	'<input type="radio" class="stars" name="star" value="1" id="star1" checked>★</input>' +
+			// 	'<input type="radio" class="stars" name="star" value="2" id="star2">★★</input>' +
+			// 	'<input type="radio" class="stars" name="star" value="3" id="star3">★★★</input>' +
+			// '</form>' +
+			'<p>〆</p><input type="date" id="deadline"><span></span>' +
+			'<input class="close_button" id="close_button" type="button" value="close">' +
 			'<input class="save_button" id="save_button" type="button" value="SAVE">' +
-			'<input class="delete_button" id="delete_button" type="button" value="Delete">' +
+			'<input class="delete_button" id="delete_button" type="button" value="delete">' +
 		'</div>';
 }
 
 //オブジェクトを作るファンクション
-function addPostit(p,w,d,ttl,ta,i,top,left){ 
+function addPostit(p,d,ttl,ta,i,pos,z,s){ 
 	this.postday = p;
-	this.weight = w;
 	this.deadline = d;
 	this.title = ttl;
 	this.textarea = ta;
 	this.index = i;
-	this.top = top;
-	this.left = left;
+	this.position = pos;
+	this.zindex = z;
+	this.status = s;
 }
+
+//z-index、座標
+let znumber = 0;
+let maxz = 0;
+let position;
+
+let status; //新規作成時点で全表示(!close)
 
 //localStorageにデータがある場合はpostitsの全てのデータを記載 
 for(let i=0;i<postits.length;i++){
-	let index = i;
 	var $newpostit = $(addNewPostit());
 	$('#whiteboard_wrap').append($newpostit); //html追加
-	$newpostit.children('#weight').val(postits[i].weight);
 	$newpostit.children('#deadline').val(postits[i].deadline);
 	$newpostit.children("#title").val(postits[i].title);
 	$newpostit.children('#textarea').val(postits[i].textarea);
-	$newpostit.draggable();
-	$newpostit.children('#textarea,#weight,p,#deadline,#close_button,#save_button,#delete_button').css("display","none"); //タイトル以外を非表示
+	$newpostit.index = i;
+	//リロードしたらすべてclose状態に変更
+	$newpostit.children('#textarea,p,#deadline,span,#close_button,#save_button,#delete_button').css("display","none"); //タイトル以外を非表示
+	$newpostit.children('#title').css("color","#0d7dfd");
 	$newpostit.children('#title').prop("disabled",true); //編集不可
 	$newpostit.children('#title').css("border","none");
-	
+	$newpostit.draggable({cancel: null}); //除外項目はなし
+	$newpostit.status = 0;
+
+	//座標を設定
+	$newpostit.css("top",postits[i].position.top); 
+	$newpostit.css("left",postits[i].position.left);
+	$newpostit.css("z-index",postits[i].zindex);
+	if(postits[i].zindex>maxz){maxz=postits[i].zindex;} //z-indexの最大値を更新
+
+//マウスダウンしたら前面に表示
+	$newpostit.mousedown(function(){
+		znumber = maxz+5; //z-indexに保存していたデータの最大値をセット
+		$(this).css('z-index', znumber);
+		$newpostit.zindex = znumber;
+		maxz = znumber;
+	});
+
 	//closeボタンクリックで閉じる
-	$newpostit.children("#close_button").on('click', function(){ 
-		$(this).siblings('#textarea,#weight,p,#deadline,#save_button,#delete_button').css("display","none"); //タイトル以外を非表示
+	$newpostit.children("#close_button").on('click', function(){
+		$(this).siblings('#textarea,p,#deadline,span,#save_button,#delete_button').css("display","none"); //タイトル以外を非表示
 		$(this).css("display","none"); //closeボタン自身
 		$(this).siblings('#title').prop("disabled",true); //編集不可
-		// $(this).siblings('#title').draggable('enable'); //効果なし？？？
 		$(this).siblings('#title').css("border","none");
+		$(this).siblings('#title').css("color","#0d7dfd");
+		$(this).parent(".newpostit").draggable({cancel: null}); //除外項目はなし
+		$newpostit.status = 0;
+		console.log("i="+i);
+		if(postits[i]){
+			postits[i].status = $newpostit.status; //closeのstatus(0)を保存
+			localStorage.setItem('postits', JSON.stringify(postits)); 
+		}
 	});
 
 	//ダブルクリックで開く
 	$newpostit.on("dblclick",function(){
-		$(this).children('#textarea,#weight,#deadline,#save_button,#delete_button,#close_button').css("display","block"); //タイトル以外を表示
+		$(this).children('#textarea,p,#deadline,span,#save_button,#delete_button,#close_button').css("display","block"); //タイトル以外を表示
 		$(this).children('#title').prop("disabled",false); //編集可
 		$(this).children('#title').css("border","1px solid #0d7dfd");
+		$(this).children('#title').css("color","#000");
+		$(this).draggable({cancel: "input,textarea"}); //inputとtextareaは除外
+		$newpostit.status = 1;
 	});
 
 	//SAVE クリックイベント
 	$newpostit.children("#save_button").on('click', function(){
-		// let weight = $(this).children('input:radio[name="star"]:checked'); //ラジオボタンのvalueを取得 
+		console.log($(this).find('input[name="star"]:checked').val());
 		let deadline = $(this).siblings("#deadline").val();
 		let title = $(this).siblings("#title").val();
 		let textarea = $(this).siblings("#textarea").val();
+		let index = $newpostit.index;
+		let zindex = $newpostit.zindex;
+		position = $(this).parents(".newpostit").position();	//座標取得
+		status = $newpostit.status;	
 
-	
+
 	//オブジェクトを作成して配列に入力
-		postits[index] = new addPostit(postday,weight,deadline,title,textarea,index);
-		console.log("lsに保存していたオブジェクトに編集がありを配列を再保存");
-		console.log("i="+i);
-		console.log("index="+index);
+		postits[i] = new addPostit(postday,deadline,title,textarea,index,position,zindex,status);
+		localStorage.setItem('postits', JSON.stringify(postits)); 	//ローカルストレージにデータを保存
+		console.log("既存のポストイットを保存");
 		console.log(postits);
-		console.log(postits.length);
+		console.log(localStorage);
+	});
 
-	//ローカルストレージにデータを保存
-		postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
-		console.log("配列をlocalStrageに保存");
+	//マウスアップで保存
+	$newpostit.mouseup(function(){
+		if(postits[i]){	
+			postits[i].position = $(this).position();
+			localStorage.setItem('postits', JSON.stringify(postits)); 
+		}
 	});
 
 	//delete クリックイベント ポストイットを削除
 	$newpostit.children("#delete_button").on('click', function(){
-		postits.splice(index, 1);
-		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
-		console.log("配列をlocalStrageに保存");
+		console.log("deleted i = "+i);
+		postits.splice(i, 1);
+		localStorage.setItem('postits', JSON.stringify(postits));
 		$(this).parents('.newpostit').remove();
 	});
 };
 
+let newtop = 0; //座標設定用
+let newleft = 0;
+let t = 1; //new座標設定用
+let l = 1;
+
 //new  クリックイベント 新しいポストイットを追加
 $('#new').on('click', function(){
-	console.log("#new click");
-	let index = datanumber;
-	datanumber ++;
+	// let index = datanumber;
 	var $newpostit = $(addNewPostit());
-	$newpostit.index = index;
-	$newpostit.draggable();
+	$newpostit.index = datanumber;
+	datanumber ++;
+	$newpostit.draggable({cancel: "input,textarea"});
+	$newpostit.css("position","absolute");
+	$newpostit.css("top",newtop); //座標を設定
+	$newpostit.css("left",newleft);
+	if(t<5){newtop += 58; t++;}
+	else{newtop -= 232; t=1;}
+	if(l<5){newleft += 40; l++;}
+	else{newleft -= 160; l=1;}
+	znumber = maxz+5; //z-indexの最大値を更新
+	$newpostit.css('z-index', znumber);
+	maxz = znumber;
+	$newpostit.status = 1;
+
+//マウスダウンしたら前面に表示
+	$newpostit.mousedown(function(){
+		znumber = maxz+5; //z-indexの最大値を更新
+		$(this).css('z-index', znumber);
+		$newpostit.zindex = znumber;
+		maxz = znumber;
+	});
+
+	//マウスアップで保存
+	$newpostit.mouseup(function(){
+		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
+	});
 
 	//closeボタンクリックで閉じる
 	$newpostit.children("#close_button").on('click', function(){
-		$(this).siblings('#textarea,#weight,p,#deadline,#save_button,#delete_button').css("display","none"); //タイトル以外を非表示
+		$(this).siblings('#textarea,p,#deadline,span,#save_button,#delete_button').css("display","none"); //タイトル以外を非表示
 		$(this).css("display","none");
 		$(this).siblings('#title').draggable(); //編集不可
 		$(this).siblings('#title').prop("disabled",true); //編集不可
 		$(this).siblings('#title').css("border","none");
+		$(this).siblings('#title').css("color","#0d7dfd");
+		$(this).parent(".newpostit").draggable({cancel: null});
+		$newpostit.status = 0;
+		if(postits[$newpostit.index]){
+			postits[$newpostit.index].status = $newpostit.status; //closeのstatus(0)を保存
+			localStorage.setItem('postits', JSON.stringify(postits)); 
+		}
 	});
 
 	//ダブルクリックで開く
 	$newpostit.on("dblclick",function(){
-		$(this).children('#textarea,#weight,#deadline,#save_button,#delete_button,#close_button').css("display","block"); //タイトル以外を表示
+		$(this).children('#textarea,p,#deadline,span,#save_button,#delete_button,#close_button').css("display","block"); //タイトル以外を表示
 		$(this).children('#title').prop("disabled",false); //編集可
 		$(this).children('#title').css("border","1px solid #0d7dfd");
+		$(this).children('#title').css("color","#000");
+		$(this).draggable({cancel: "input,textarea"});
+		$newpostit.status = 1;
 	});
 
 	//SAVE クリックイベント
 	$newpostit.children("#save_button").on('click', function(){
-		// let weight = $newpostit.children('input:radio[name="star"]:checked'); //ラジオボタンのvalueを取得 
 		let deadline = $(this).siblings("#deadline").val();
 		let title = $(this).siblings("#title").val();
 		let textarea = $(this).siblings("#textarea").val();
+		let zindex = $newpostit.zindex;
+		let position = $(this).parents(".newpostit").position();	//座標取得
+		let status = $newpostit.status;
+		let index = $newpostit.index;
 
 	//オブジェクトを作成して配列に入力
-		console.log("#newのオブジェクトを配列に保存");
-		console.log("$newpostit.index="+$newpostit.index);
-		postits[$newpostit.index] = new addPostit(postday,weight,deadline,title,textarea);	
-		console.log("postits[0]="+postits[0]);
-		console.log("postits[1]="+postits[1]);
-		console.log("postits[2]="+postits[2]);
-		console.log("postits[3]="+postits[3]);
+		console.log("#newオブジェクトを配列に保存");
+		postits[$newpostit.index] = new addPostit(postday,deadline,title,textarea,index,position,zindex,status);	
 
-		//配列整理（＊タイトル未入力は非対応＊）
-		// postits = postits.filter(Boolean); //タイトルが 0, null, undefined ,空文字列等のデータを削除
-		console.log("postits.length="+postits.length);
-		console.log("保存後のdatanumber="+datanumber); //確認
-		
-		//ローカルストレージにデータを保存
+	//ローカルストレージにデータを保存
 		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
-		console.log("配列をlocalStrageに保存");
+		console.log(postits);
+		console.log(localStorage.length);
 	});
+
+	//マウスアップで保存
+	$newpostit.mouseup(function(){
+		if(postits[$newpostit.index]){
+			postits[$newpostit.index].position = $(this).position();
+			localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
+		}
+	});
+	
 
 	//delete クリックイベント ポストイットを削除
 	$newpostit.children("#delete_button").on('click', function(){
-		postits.splice(index, 1);
+		console.log("deleted $newpostit.index = "+$newpostit.index);
+		postits.splice($newpostit.index, 1);
 		localStorage.setItem('postits', JSON.stringify(postits)); //配列postitをキーpostitでlocalstrageに保存
-		console.log("配列をlocalStrageに保存");
 		$(this).parents('.newpostit').remove();
 	});
 	$('#whiteboard_wrap').append($newpostit);
 });
 
-console.log("postits.length="+postits.length);
-
-//clear クリックイベント 全てのポストイットを削除
+//All Clear クリックイベント 全てのポストイットとlocalStorageデータを削除
 $("#clear").on("click",function(){
 	localStorage.removeItem("postits");
 	$("#whiteboard_wrap").empty();
+	postits.splice(0);
 });
 
 </script>
