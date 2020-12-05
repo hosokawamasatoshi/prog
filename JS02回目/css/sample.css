@@ -98,22 +98,20 @@ h1 {
   /* background: yellow; */
 }
 #deadline{
-  width: 30%;
+  width: 40%;
 }
 input[type="date"]::-webkit-calendar-picker-indicator{
   /* position: absolute;
   left: 0;
-  top: 0; */
-  /* bottom: 0; */
-  /* margin: auto;
-  padding: 0; */
-  /* background: transparent; */
-  /* color: transparent; */
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  padding: 0;
+  background: transparent;
+  color: transparent; */
   filter:invert(100%) brightness(50%) sepia(100%) saturate(10000%) hue-rotate(240deg);
   cursor: pointer;
-  width: 300px;
-  /* background: yellow;
-  opacity: 50%; */
+  /* width: 300px; */
 }
 p {
   width: 40%;
