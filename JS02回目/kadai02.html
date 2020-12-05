@@ -51,18 +51,13 @@ if(!localStorage.getItem("postits")){
 //新しいポストイット作成用追加HTML
 function addNewPostit(){
 	return  '<div class="newpostit">' + 
-			'<input type="text" id="title" placeholder="Title">' +
-			'<textarea name="textarea" id="textarea" cols="30" rows="10"></textarea>' +
-			// '<form name="form1" id="weight">' +
-			// 	'<input type="radio" class="stars" name="star" value="1" id="star1" checked>★</input>' +
-			// 	'<input type="radio" class="stars" name="star" value="2" id="star2">★★</input>' +
-			// 	'<input type="radio" class="stars" name="star" value="3" id="star3">★★★</input>' +
-			// '</form>' +
-			'<p>〆</p><input type="date" id="deadline"><span></span>' +
-			'<input class="close_button" id="close_button" type="button" value="close">' +
-			'<input class="save_button" id="save_button" type="button" value="SAVE">' +
-			'<input class="delete_button" id="delete_button" type="button" value="delete">' +
-		'</div>';
+		'<input type="text" id="title" placeholder="Title">' +
+		'<textarea name="textarea" id="textarea" cols="30" rows="10"></textarea>' +
+		'<p>〆</p><input type="date" id="deadline"><span></span>' +
+		'<input class="close_button" id="close_button" type="button" value="close">' +
+		'<input class="save_button" id="save_button" type="button" value="SAVE">' +
+		'<input class="delete_button" id="delete_button" type="button" value="delete">' +
+	'</div>';
 }
 
 //オブジェクトを作るファンクション
@@ -246,7 +241,7 @@ $('#new').on('click', function(){
 		let title = $(this).siblings("#title").val();
 		let textarea = $(this).siblings("#textarea").val();
 		let zindex = $newpostit.zindex;
-		let position = $(this).parents(".newpostit").position();	//座標取得
+		let position = $(this).parents(".newpostit").position(); //座標取得
 		let status = $newpostit.status;
 		let index = $newpostit.index;
 
