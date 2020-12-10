@@ -1,0 +1,194 @@
+.main_wrap {
+  width: 1300px;
+  margin: 0 auto;
+  position: relative;
+}
+.setting {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  /* border:1px solid #F1AF25; */
+}
+.setting div{
+  margin: 10px;
+}
+.setting input{
+  height: 30px;
+  padding: 5px;
+  font-size: 15px;
+}
+#uname{
+  font-size: 20px;
+}
+#char_change{
+  border-radius: 50%;
+  background-position: center ;
+  background-size:cover;
+}
+.char_output{
+  width: 70px;
+  border-radius: 50%;
+  background-position: center ;
+  background-size:cover;
+}
+
+img{
+  width: 100px;
+  padding: 3px;
+}
+.input img, .output img{
+  margin-top: 15px;
+}
+#fixed_btn{
+  height: 50px;
+  width: 100px;
+  margin-left: 30px;
+  margin-top: 95px;
+}
+#icon{
+  width: 70px;
+  height: 70px;
+  position: absolute;
+}
+.wave{
+  color: red;
+  font-weight: bold;
+  line-height: 50%;
+  animation-name: jump1;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
+  transform : translateY(-5px); 
+}
+@keyframes jump1{
+  from{ transform: translateY(0);}
+  50%{ transform: translateY(-5px); }
+  to{ transform: translateY(0); }
+}
+#status-wrap{
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+#house-wrap{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+#status{
+  width: 400px;
+  height: 500px;
+  background-size: 400px;
+  background-image: url(imgs/house3.png);
+}
+#status p, #transport{
+  font-weight: bold;
+  padding-left: 60px;
+}
+#roof{
+  height: 90px;
+}
+#work, #break, #sleep{
+  height: 120px;
+}
+#transport{
+  height: 50px;
+}
+#icon_field{
+  width: 400px;
+  height: 100px;
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+}
+.chat_wrap{
+  width: 900px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.output_area, .input_area{
+  width: 700px;
+  margin: 10px;
+}
+#output_text{
+  height: 500px;
+  padding: 10px;
+  overflow:auto;
+}
+#input_text{
+  resize: none;
+  width: 600px;
+  height:30px;
+  margin: 5px;
+  padding: 10px;
+  font-size: 18px;
+  border:1px solid #000;
+  vertical-align: middle;
+  font-family:'メイリオ', 'Meiryo', sans-serif;
+}
+#output_r{
+  text-align: end;
+  display: flex;
+  justify-content: flex-end;
+}
+#output_l{
+  text-align: end;
+  display: flex;
+  justify-content: flex-start;
+}
+#text_l, #text_r{
+  position: relative;
+  display: inline-block;
+  margin: 5px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: justify;
+  text-align-last: left;
+  overflow-wrap: break-word;
+  border-radius: 20px;
+}
+#text_l{
+  background: #DDF2FD;
+}
+#text_r{
+  background: #E8FBE1;
+}
+#text_l:before,#text_r:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  margin-top: -15px;
+  border: 15px solid transparent;
+}
+#text_l:before {
+  left: 100%;
+  border-left: 15px solid #DDF2FD;
+}
+#text_r:before {
+  left: -30px;
+  border-right: 15px solid #E8FBE1;
+}
+#small_char{
+  margin: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+}
+#send{
+  width: 50px;
+  height: 50px;
+  vertical-align: middle;
+  border-radius: 50%;
+}
+#icon_img{
+  margin-top: auto;
+  /* 画像と名前を下側に配置 */
+}
+#icon_name{
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+}

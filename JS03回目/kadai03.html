@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Chatアプリ</title>
+<link rel="stylesheet" href="kadai03.css">
+</head>
+<body>
+
+<!-- コンテンツ表示画面 -->
+<div class="main_wrap">
+    <div class="setting">
+        <div>
+            <p style="font-weight: bold;font-size:x-large;">あなたのアバター設定</p>
+            <input type="text" id="uname" value="名もない偉人">
+            <p class="wave">↑</p>
+            <p class="wave">名前をつけよう</p>
+        </div>
+        <div>
+            <p>キャラクター</p>
+            <img src="imgs/miyamoto_musashi.png" id="char_change">
+            <p class="wave">↑</p>
+            <p class="wave">クリック</p>
+        </div>
+        <div class="input">
+            <p>入力言語</p>
+            <img src="imgs/Japan.png" id="input_language">
+            <p class="wave">↑</p>
+            <p class="wave">クリック</p>
+        </div>
+        <div class="output">
+            <p>表示言語</p>
+            <img src="imgs/Japan.png" id="output_language">
+            <p class="wave">↑</p>
+            <p class="wave">クリック</p>
+        </div>
+        <button id="fixed_btn">決定</button>
+        <div id="status_icon"></div>
+    </div>
+    <div id="status-wrap">
+        <div id="house-wrap">
+            <div id="status">
+                <div id="roof"></div>
+                <div id="work">
+                    <p>仕事中</p>
+                </div>
+                <div id="break">
+                    <p>休憩中</p>
+                </div>
+                <div id="sleep">
+                    <p>就寝中</p>
+                </div>
+            </div>
+            <div id="transport">
+                <p>移動中</p>
+            </div>
+            <div id="icon_field"></div>
+        </div>
+        <div class="chat_wrap">
+            <div class="output_area">
+                <div id="output_text"></div>
+            </div>
+            <div class="input_area">
+                <textarea id="input_text" name=" input_text"></textarea>
+                <button id="send">送信</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--/ コンテンツ表示画面 -->
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+    https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+
+  // Your web app's Firebase configuration
+    var firebaseConfig = {
+    apiKey: "AIzaSyDWkuRs77vopDPhfhMRThAkQlc9a9TfaHU",
+    authDomain: "unit1-4a584.firebaseapp.com",
+    projectId: "unit1-4a584",
+    storageBucket: "unit1-4a584.appspot.com",
+    messagingSenderId: "759416904392",
+    appId: "1:759416904392:web:c944e2ba65fda5842763fd"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const ref = firebase.database().ref(); 
+    //ref();でリアルタイム通信ができる
+    //ref()の中にディレクトリ構造を書くとそのデータ構造で保存できる！
+
+    //本日の日付を取得
+    let date = new Date();
+    function sampleDate(date, format) {
+	format = format.replace(/YYYY/, date.getFullYear());
+	format = format.replace(/MM/, date.getMonth() + 1);
+	format = format.replace(/DD/, date.getDate());
+	return format;
+    }
+    let postday = sampleDate(date, 'YYYY-MM-DD');
+
+    //キャラクター選択
+    let chars = ["imgs/miyamoto_musashi.png","imgs/einstein.png","imgs/cleopatra.png",
+                "imgs/onono_komachi.png","imgs/nigaoe_ryuubigentoku.png"];
+    let char_index = 0; //デフォルトは宮本武蔵
+    $("#char_change").on("click",function(){ //クリックするたびにキャラクターを変更
+        if(char_index<chars.length-1){
+            char_index++;
+            $("#char_change").attr("src",chars[char_index]);
+        }else{
+            char_index=0;
+            $("#char_change").attr("src",chars[char_index]);
+        }
+    });
+
+    //言語
+    let lang_img = ["imgs/Japan.png","imgs/USA.png","imgs/China.png","imgs/SouthKorea.png"];
+    const languages = ["ja","en","zh","ko"]; //日本語、英語、中国語、韓国語
+    let in_c = languages[0]; //デフォルトは日本語
+    let out_c = languages[0];
+
+    //入力言語
+    let in_lang_index = 0; //デフォルトは日本
+    $("#input_language").on("click",function(){ //クリックするたびにキャラクターを変更
+        if(in_lang_index<lang_img.length-1){
+            in_lang_index++;
+            $("#input_language").attr("src",lang_img[in_lang_index]);
+        }else{
+            in_lang_index=0;
+            $("#input_language").attr("src",lang_img[in_lang_index]);
+        }
+        in_c = languages[in_lang_index];
+        console.log(in_c);
+    });
+
+    //出力言語
+    let out_lang_index = 0; //デフォルトは日本
+    $("#output_language").on("click",function(){ //クリックするたびにキャラクターを変更
+        if(out_lang_index<lang_img.length-1){
+            out_lang_index++;
+            $("#output_language").attr("src",lang_img[out_lang_index]);
+        }else{
+            out_lang_index=0;
+            $("#output_language").attr("src",lang_img[out_lang_index]);
+        }
+        out_c = languages[out_lang_index];
+        console.log(out_c);
+    });
+    
+    //アイコン用HTML
+    function addIcon(vcindex){
+        return  '<img src='+chars[vcindex]+' id=icon>';
+    }
+
+    let text_backgournd = ["#DDF2FD","#E8FBE1","#FAF8DF","#FCEBF6","#ECE3FC","#DEE0E4"]; //ふきだしの背景色
+    let mission; //案件判別用 1.メッセージ送受信 2.アイコン作成 3.アイコン移動
+    let position; //アイコンの座標
+
+    //アイコン作成イベント 決定ボタンをクリックしたら名前とキャラ変更不可
+    $("#fixed_btn").on("click",function(){
+        mission = 2; //案件判別：アイコン作成
+        $("#uname").prop("disabled",true); 
+        $(this).prop("disabled",true);
+        $("#char_change").css("pointer-events","none");
+        mission = 2; //案件判別：アイコン作成
+        const msg = { //オブジェクトとして保存
+            mission: mission, //案件判別：メッセージ送信
+            uname: $("#uname").val(),
+            char_index: char_index,
+            in_c: in_c,
+            // position: $(this).position()
+        }
+        ref.push(msg); //サーバーにmsgオブジェクトを送る
+        $(".wave").css("visibility","hidden");
+    });
+
+    //メッセージ送信
+    function firebase_push(){
+        const uname = $("#uname").val();
+        const input_text = $("#input_text").val(); //入力テキスト
+        mission = 1; //案件判別：メッセージ送信
+        const msg = { //オブジェクトとして保存
+            mission: mission,
+            postday: postday,
+            uname: uname,
+            char_index: char_index,
+            in_c: in_c, //入力言語インデックス
+            input_text: input_text, //入力テキスト
+        };
+        ref.push(msg); //サーバーにmsgオブジェクトを送る
+    }
+
+    //送信イベント 送信ボタンクリック
+    $("#send").on("click", function(){
+        firebase_push();
+    });
+
+    //送信イベント Enterクリック
+    $("#input_text").on("keydown", function(e){ //eがキモ！ 様々な情報を持っている
+        if(e.keyCode == 13){ //13：Enter
+            firebase_push();
+        }
+    });
+
+    //受信イベント
+    ref.on("child_added", function(data){ //ref.on();で送信データを監視
+        const v = data.val(); //dataオブジェクトの中のData取得
+        const k = data.key; //UniqueKEYを取得（削除に必要らしい）
+        if(v.mission == 1){ //1.メッセージ送受信
+            console.log("msg received! v.mission = "+v.mission);
+            if(out_c == v.in_c){ //入力された言語が自分の出力言語と同じ場合は翻訳不要
+                console.log("翻訳の必要なし languages[v.char_index] = "+languages[v.char_index]);
+                console.log("out_c = "+out_c);
+                console.log("v.in_c = "+v.in_c);
+                if(v.uname == $("#uname").val()){ //自分のメッセージは右側に表示
+                    let h = '<div id="output_r">'+
+                                '<div>'+
+                                    '<div id="text_l">'+v.input_text+'</div>'+
+                                '</div>'+
+                                '<div id="small_char">'+
+                                    '<div id="icon_img"><img src='+chars[v.char_index]+' class="char_output"></div>'+
+                                    '<div id="icon_name">'+v.uname+'</div>'+
+                                '</div>'+
+                            '</div>';
+                    $("#output_text").append(h);
+                }else{ //他人からのメッセージは左側に表示
+                    let h = '<div id="output_l">'+
+                                '<div id="small_char">'+
+                                    '<div id="icon_img"><img src='+chars[v.char_index]+' class="char_output"></div>'+
+                                    '<div id="icon_name">'+v.uname+'</div>'+
+                                '</div>'+
+                                '<div>'+
+                                    '<div id="text_r">'+v.input_text+'</div>'+
+                                '</div>'+
+                            '</div>';
+                    $("#output_text").append(h);
+                }
+                const tdiv = document.getElementById("output_text"); //スクロール下部へ移動
+                tdiv.scrollTop = tdiv.scrollHeight;
+            }else{ //入出力が異なる言語の場合は翻訳が必要
+                console.log("翻訳必要 languages[v.char_index] = "+languages[v.char_index]);
+                let request = new XMLHttpRequest(); // XMLHttpRequestオブジェクトの作成認
+                request.open('GET', 'https://script.google.com/macros/s/AKfycbwkNsiaFZIBNK1kzvWFubp5CIUIsNicoL3A6yvnTQRYyEKifkE/exec?text='+v.input_text+'&source='+v.in_c+'&target='+out_c, true);
+                request.onload = function () { // レスポンスが返ってきた時の処理を記述、翻訳結果が返ってきてからFirebaseにpush
+                    let translated_text = this.response; //出力テキスト
+                    if(v.uname == $("#uname").val()){ //自分のメッセージは右側に表示
+                    let h = '<div id="output_r">'+
+                                '<div>'+
+                                    '<div id="text_l">'+translated_text+'</div>'+
+                                '</div>'+
+                                '<div id="small_char">'+
+                                    '<div id="icon_img"><img src='+chars[v.char_index]+' class="char_output"></div>'+
+                                    '<div id="icon_name">'+v.uname+'</div>'+
+                                '</div>'+
+                            '</div>';
+                    $("#output_text").append(h);
+                }else{ //他人からのメッセージは左側に表示
+                    let h = '<div id="output_l">'+
+                                '<div id="small_char">'+
+                                    '<div id="icon_img"><img src='+chars[v.char_index]+' class="char_output"></div>'+
+                                    '<div id="icon_name">'+v.uname+'</div>'+
+                                '</div>'+
+                                '<div>'+
+                                    '<div id="text_r">'+translated_text+'</div>'+
+                                '</div>'+
+                            '</div>';
+                    $("#output_text").append(h);
+                }
+                    // $("#output_text").append(h);
+                    const tdiv = document.getElementById("output_text"); //スクロール下部へ移動
+                    tdiv.scrollTop = tdiv.scrollHeight;
+                }
+                request.send(); // リクエストをURLに送信
+            }
+        }else if(v.mission == 2){ //2.アイコン作成時の処理
+            console.log("icon created! v.mission = "+v.mission);
+            const $icon = $(addIcon(v.char_index));
+            $icon.draggable();
+            $('#icon_field').append($icon);
+            $icon.mouseup(function(){
+                //$iconをマウスアップしたら、位置情報を含めてmsgに保存して、$iconを一度消去してから、新座標でアイコンを作成
+                console.log("mouseup!");
+                // v.position = $(this).position();
+                // position: $(this).position()
+                const msg = {position: $(this).position()} //サーバーにmsgオブジェクトを送る
+            });
+        }else{
+        }
+    });
+
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
