@@ -1,7 +1,6 @@
 .main_wrap {
   width: 1300px;
   margin: 0 auto;
-  position: relative;
 }
 .setting {
   position: relative;
@@ -20,6 +19,7 @@
 }
 #uname{
   font-size: 20px;
+  margin-top: 30px;
 }
 #char_change{
   border-radius: 50%;
@@ -49,7 +49,7 @@ img{
 #icon{
   width: 70px;
   height: 70px;
-  position: absolute;
+  /* position: absolute; */
 }
 .wave{
   color: red;
@@ -68,12 +68,10 @@ img{
 #status-wrap{
   display: flex;
   justify-content: center;
-  position: relative;
 }
 #house-wrap{
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 #status{
   width: 400px;
@@ -99,7 +97,6 @@ img{
   height: 100px;
   display: flex;
   flex-wrap: wrap;
-  position: relative;
 }
 .chat_wrap{
   width: 900px;
