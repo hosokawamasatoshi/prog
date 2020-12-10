@@ -11,13 +11,13 @@
 <div class="main_wrap">
     <div class="setting">
         <div>
-            <p style="font-weight: bold;font-size:x-large;">あなたのアバター設定</p>
+            <p>名前</p>
             <input type="text" id="uname" value="名もない偉人">
             <p class="wave">↑</p>
-            <p class="wave">名前をつけよう</p>
+            <p class="wave">名前をつけてあげてね</p>
         </div>
         <div>
-            <p>キャラクター</p>
+            <p>アバター</p>
             <img src="imgs/miyamoto_musashi.png" id="char_change">
             <p class="wave">↑</p>
             <p class="wave">クリック</p>
@@ -61,7 +61,7 @@
                 <div id="output_text"></div>
             </div>
             <div class="input_area">
-                <textarea id="input_text" name=" input_text"></textarea>
+                <textarea id="input_text" disabled name=" input_text"></textarea>
                 <button id="send">送信</button>
             </div>
         </div>
@@ -129,6 +129,7 @@
     const languages = ["ja","en","zh","ko"]; //日本語、英語、中国語、韓国語
     let in_c = languages[0]; //デフォルトは日本語
     let out_c = languages[0];
+    console.log("in_c:"+in_c+" out_c:"+out_c);
 
     //入力言語
     let in_lang_index = 0; //デフォルトは日本
@@ -160,7 +161,7 @@
     
     //アイコン用HTML
     function addIcon(vcindex){
-        return  '<img src='+chars[vcindex]+' id=icon>';
+	    return  '<img src='+chars[vcindex]+' id=icon>';
     }
 
     let text_backgournd = ["#DDF2FD","#E8FBE1","#FAF8DF","#FCEBF6","#ECE3FC","#DEE0E4"]; //ふきだしの背景色
@@ -172,6 +173,7 @@
         mission = 2; //案件判別：アイコン作成
         $("#uname").prop("disabled",true); 
         $(this).prop("disabled",true);
+        $("#input_text").prop("disabled",false);
         $("#char_change").css("pointer-events","none");
         mission = 2; //案件判別：アイコン作成
         const msg = { //オブジェクトとして保存
@@ -179,7 +181,7 @@
             uname: $("#uname").val(),
             char_index: char_index,
             in_c: in_c,
-            // position: $(this).position()
+            position: $(this).position()
         }
         ref.push(msg); //サーバーにmsgオブジェクトを送る
         $(".wave").css("visibility","hidden");
@@ -189,7 +191,7 @@
     function firebase_push(){
         const uname = $("#uname").val();
         const input_text = $("#input_text").val(); //入力テキスト
-        mission = 1; //案件判別：メッセージ送信
+        mission = 3; //案件判別：メッセージ送信
         const msg = { //オブジェクトとして保存
             mission: mission,
             postday: postday,
@@ -199,6 +201,8 @@
             input_text: input_text, //入力テキスト
         };
         ref.push(msg); //サーバーにmsgオブジェクトを送る
+        let textlcear = document.getElementById("input_text");
+        textlcear.value = '';
     }
 
     //送信イベント 送信ボタンクリック
@@ -287,52 +291,16 @@
             console.log("icon created! v.mission = "+v.mission);
             const $icon = $(addIcon(v.char_index));
             $icon.draggable();
-            $('#icon_field').append($icon);
-            $icon.mouseup(function(){
-                //$iconをマウスアップしたら、位置情報を含めてmsgに保存して、$iconを一度消去してから、新座標でアイコンを作成
-                console.log("mouseup!");
-                // v.position = $(this).position();
-                // position: $(this).position()
-                const msg = {position: $(this).position()} //サーバーにmsgオブジェクトを送る
-            });
-        }else{
+            $('#icon_field').append($icon);        
+        }else{ //3.アイコン移動
+        	//座標を設定
+            console.log("icon moved! v.mission = "+v.mission);
+            // $icon.css("top",v.position.top); 
+            // $icon.css("left",v.position.left);
         }
     });
 
 </script>
 
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
