@@ -87,12 +87,12 @@
 
   // Your web app's Firebase configuration
     var firebaseConfig = {
-    apiKey: "AIzaSyDWkuRs77vopDPhfhMRThAkQlc9a9TfaHU",
-    authDomain: "unit1-4a584.firebaseapp.com",
-    projectId: "unit1-4a584",
-    storageBucket: "unit1-4a584.appspot.com",
-    messagingSenderId: "759416904392",
-    appId: "1:759416904392:web:c944e2ba65fda5842763fd"
+        apiKey: "AIzaSyDWkuRs77vopDPhfhMRThAkQlc9a9TfaHU",
+        authDomain: "unit1-4a584.firebaseapp.com",
+        projectId: "unit1-4a584",
+        storageBucket: "unit1-4a584.appspot.com",
+        messagingSenderId: "759416904392",
+        appId: "1:759416904392:web:c944e2ba65fda5842763fd"
     };
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
@@ -103,10 +103,10 @@
     //本日の日付を取得
     let date = new Date();
     function sampleDate(date, format) {
-	format = format.replace(/YYYY/, date.getFullYear());
-	format = format.replace(/MM/, date.getMonth() + 1);
-	format = format.replace(/DD/, date.getDate());
-	return format;
+        format = format.replace(/YYYY/, date.getFullYear());
+        format = format.replace(/MM/, date.getMonth() + 1);
+        format = format.replace(/DD/, date.getDate());
+        return format;
     }
     let postday = sampleDate(date, 'YYYY-MM-DD');
 
@@ -161,12 +161,14 @@
     
     //アイコン用HTML
     function addIcon(vcindex){
-	    return  '<img src='+chars[vcindex]+' id=icon>';
+        return  '<img src='+chars[vcindex]+' id=icon>';
     }
 
     let text_backgournd = ["#DDF2FD","#E8FBE1","#FAF8DF","#FCEBF6","#ECE3FC","#DEE0E4"]; //ふきだしの背景色
     let mission; //案件判別用 1.メッセージ送受信 2.アイコン作成 3.アイコン移動
-    let position; //アイコンの座標
+    let position = $("#icon_field").position(); //アイコンの座標
+    let position_top = position.top;
+    let position_left = position.left;
 
     //アイコン作成イベント 決定ボタンをクリックしたら名前とキャラ変更不可
     $("#fixed_btn").on("click",function(){
@@ -181,7 +183,8 @@
             uname: $("#uname").val(),
             char_index: char_index,
             in_c: in_c,
-            position: $(this).position()
+            position_top: position_top,
+            position_left: position_left
         }
         ref.push(msg); //サーバーにmsgオブジェクトを送る
         $(".wave").css("visibility","hidden");
@@ -288,15 +291,42 @@
                 request.send(); // リクエストをURLに送信
             }
         }else if(v.mission == 2){ //2.アイコン作成時の処理
+            console.log("アイコン作成");
             console.log("icon created! v.mission = "+v.mission);
             const $icon = $(addIcon(v.char_index));
             $icon.draggable();
-            $('#icon_field').append($icon);        
-        }else{ //3.アイコン移動
-        	//座標を設定
-            console.log("icon moved! v.mission = "+v.mission);
-            // $icon.css("top",v.position.top); 
-            // $icon.css("left",v.position.left);
+            $('#icon_field').append($icon);
+
+            //マウスアップで保存
+            $icon.mouseup(function(){
+                console.log("mouseup");
+                let new_position = $(this).position(); //iconが移動した先の座標を取得
+                v.position_top = new_position.top;
+                v.position_left = new_position.left;
+                v.mission = 3; //3.アイコン移動
+                //移動した先の座標を含めてオブジェクト作成
+                const msg2 = {
+                    mission: v.mission,
+                    uname: v.uname,
+                    char_index: v.char_index,
+                    in_c: v.in_c, 
+                    position_top: v.position_top,
+                    position_left: v.position_left,
+                };
+                ref.push(msg2); //サーバーにmsg2オブジェクトを送る
+                // $icon.remove();
+                console.log("元のアイコンを削除");
+            });
+
+        }else{ //mission == 3.アイコン移動
+        	//移動した先の座標でアイコンを作成
+            console.log("アイコン移動");
+            const $icon = $(addIcon(v.char_index));
+            $icon.draggable();
+            $('#icon_field').append($icon);
+            $("#icon").css("position","absolute");
+            $("#icon").css("top",v.position_top);
+            $("#icon").css("left",v.position_left);
         }
     });
 
