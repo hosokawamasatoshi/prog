@@ -1,0 +1,125 @@
+main{
+  width: 1400px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+h1{
+  text-align: center;
+}
+#line_setting{
+  text-align: center;
+}
+input{
+  margin: 10px 20px;
+}
+#btn_area{
+  margin: 10px 20px;
+  text-align: center;
+}
+button{
+  margin: 10px;
+  padding: 10px;
+  border: none;
+  /* color: blue; */
+  background: #ECECEC;
+  font-weight: bold;
+}
+button:hover{
+  background: blue;
+  color:#ECECEC;
+}
+#born_btn{
+  width: 100px;
+  padding: 10px;
+  margin-right: 20px;
+  font-size: 20px;
+}
+#clear_btn{
+  width: 100px;
+}
+#magical_btn{
+  opacity: 0;
+  color: black;
+  background : linear-gradient(to right,red,orange,yellow,aqua);
+}
+#magical_btn:hover{opacity: 1;}
+
+#canvas_wrap{
+  width: 350px;
+  height: 700px;
+  padding: 10px;
+  margin: 20px;
+}
+#canvas_wrap p{
+  margin: 5px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+#da_wrap{
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+#opacity_fix{
+  /* 見本の透明度がcanvas全体に影響しないための設定 */
+  height: 100%;
+  background: rgba(255,255,255,0.5);
+}
+canvas{
+  margin: 10px;
+  border: 5px outset blue;
+  display: inline;
+  z-index: 100;
+}
+#aquarium{
+  width: 900px;
+  height: 700px;
+  margin: 20px;
+  padding: 20px;
+  position: relative;
+  background-image: url(image/suisou.png);
+  background-size: 950px;
+}
+#sample{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+#sample img{
+  width: 100px;
+  margin: 1px;
+  padding: 10px;
+}
+.fish_img{
+  position: absolute;
+  width: 100px;
+}
+.rotate_right{
+  transform: rotateY(180deg);
+}
+.rotate_360{
+  transform: rotateY(720deg);
+  animation-timing-function: ease;
+  /* transition-property: all; */
+  transition-delay: 0;
+  transition-duration:3s;
+}
+.rotate_0{
+  transition-duration:3s;
+  transform: rotateY(0deg);
+  animation-timing-function: ease;
+}
+.swing{
+  animation-name: swing;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  display: inline-block;
+}
+@keyframes swing{
+  from{ transform: rotate(5deg);}
+  50%{ transform: rotate(-5deg); }
+  to{ transform: rotate(5deg); }
+}

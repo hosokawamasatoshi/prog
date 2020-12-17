@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>アクアリウム</title>
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <link rel="stylesheet" href="kadai04.css">
+</head>
+
+<body>
+    <main>
+        <div id="canvas_wrap">
+            <h1>うみのいきもの</h1>
+            <div class="flexbox">
+                <div id="line_setting">
+                    <!-- 線の色を変更するHTML要素 -->
+                    <input id="color_btn" type="color">いろ</input>
+                    <!-- 線の太さを変更するHTML要素 -->
+                    <input id="range_btn" type="range" min="1" max="15" value="5">ふとさ</input>
+                </div>
+                <div id="btn_area">
+                    <!-- <button id="magical_btn">まほうのペン</button> -->
+                    <button id="born_btn">できた！</button>
+                    <button id="clear_btn">けす</button>
+                    <button id="save_btn">とっておく</button>
+                    <button id="restore_btn">おもいだす</button>
+                    <!-- <select name="files" id="file_list">
+                        <option value=""></option>
+                    </select> -->
+                </div>
+            </div>
+            <div id="da_wrap">
+                <div id="opacity_fix">
+                    <canvas id="draw_area" width="200" height="200"></canvas>
+                </div> 
+            </div>
+            <p>おてほんをクリック！</p>
+            <div id="sample">
+                <img src="image/kumanomi.png" class="sample_img swing" value="0">
+                <img src="image/nanyouhagi.png" class="sample_img swing" value="1">
+                <img src="image/kani.png" class="sample_img swing" value="2">
+                <img src="image/ika.png" class="sample_img swing" value="3">
+            </div>
+    </div>
+        <div id="aquarium"></div>
+    </main>
+
+
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script>
+        let sample_num = 0; //見本番号
+        let base64;
+
+        //見本をcanvasに表示
+        $(".sample_img").on("click",function(){
+            sample_num = $(this).attr('value'); //sample番号
+            let sample_src = $(this).attr('src'); //sampleアドレス
+            $("#da_wrap").css("background-image","url("+sample_src+")");
+            $("#da_wrap").css("background-size","50%");
+            $("#da_wrap").css("background-repeat","no-repeat");
+            $("#da_wrap").css("background-position","center");
+            console.log("sample_num = "+sample_num);
+            console.log("Math.round = "+Math.round( Math.random()*90));
+            });
+
+        //初期化(変数letで宣言)
+        let canvas_mouse_event = false; //スイッチ [ true=線を引く, false=線は引かない ]  ＊＊＊
+        let oldX = 0; //１つ前の座標を代入するための変数
+        let oldY = 0; //１つ前の座標を代入するための変数
+        let bold_line = 3; //ラインの太さをここで指定
+        let color = "#000000"; //ラインの色をここで指定
+        let x_left, x_right, y_top, y_bottom; //画像の上下左右の端の座標
+
+        //色と線の太さの変更
+        $("#color_btn").on("change",function(){
+            color = $("#color_btn").val();
+        });
+        $("#range_btn").on("change",function(){
+            bold_line = $("#range_btn").val();
+        });
+
+        //------------------------------------------------
+        //const can = $("#drowarea")[0]; //CanvasElement
+        //const ctx = can.getContext("2d"); //描画するための準備！
+        //------------------------------------------------
+        //上2つのスクリプトを記述します。
+        const can = $("#draw_area")[0]; //CanvasElement
+        const ctx = can.getContext("2d"); //描画するための準備！
+
+        //mousedown：フラグをTrue
+        //-----------------------------------------------
+        //oldX = e.offsetX; //MOUSEDOWNしたX横座標取得
+        //oldY = e.offsetY; //MOUSEDOWN Y高さ座標取得
+        //canvas_mouse_event=true;
+        //-----------------------------------------------
+        //上5つのスクリプトを記述します。
+
+        $(can).on("mousedown",function(e){
+            // console.log(e);
+            oldX = e.offsetX; //現在地点XをoldXに代入
+            oldY = e.offsetY; //YをoldYに
+            canvas_mouse_event = true; //書くぞー！
+            if(!x_left){ //画像の角の座標の獲得、初期値セット
+                x_left = e.offsetX;
+                y_top = e.offsetY;
+                console.log("first dot");
+            }else{ //画像の角の座標の更新
+                    if(e.offsetX < x_left){x_right = x_left; x_left = e.offsetX;}
+                    if(e.offsetX > x_left){x_right = e.offsetX;}
+                    if(e.offsetY < y_top){y_bottom = y_top; y_top = e.offsetY;}
+                    if(e.offsetY > y_top){y_bottom = e.offsetY;}
+            }
+        });
+
+        //mousemove：フラグがTrueだったら描く ※e：イベント引数取得
+        //----------------------------------------------
+        //  if(canvas_mouse_event==true){
+        //      const px = e.offsetX;
+        //      const py = e.offsetY;
+        //      ctx.strokeStyle = color;
+        //      ctx.lineWidth = bold_line;
+        //      ctx.beginPath();
+        //      ctx.lineJoin= "round";
+        //      ctx.lineCap = "round";
+        //      ctx.moveTo(oldX, oldY);
+        //      ctx.lineTo(px, py);
+        //      ctx.stroke();
+        //      oldX = px;
+        //      oldY = py;
+        //  }
+        //mousemoveイベント
+        $(can).on("mousemove",function(e){ //e:mousemoveした先のデータ
+            // console.log(e.offsetX);
+            if(canvas_mouse_event == true){
+                const px = e.offsetX; //現在地点
+                const py = e.offsetY;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = bold_line;
+                ctx.beginPath();
+                ctx.lineJoin= "round";
+                ctx.lineCap = "round";
+                ctx.moveTo(oldX, oldY);
+                ctx.lineTo(px, py);
+                ctx.stroke();
+                oldX = px; //★入れ替え★
+                oldY = py;
+            //最大最小の更新
+            if(!x_right){
+                if(x_left < e.offsetX){
+                    x_right = e.offsetX;
+                }else{
+                    x_right = x_left;
+                    x_left = e.offsetX;
+                }
+                if(y_top < e.offsetY){
+                    y_bottom = e.offsetY;
+                }else{
+                    y_bottom = y_top;
+                    y_top = e.offsetY;
+                }
+                console.log("second dot");
+            }
+            if(e.offsetX < x_left){x_left = e.offsetX;}
+            if(e.offsetX > x_right){x_right = e.offsetX;}
+            if(e.offsetY < y_top){y_top = e.offsetY;}
+            if(e.offsetY > y_bottom){y_bottom = e.offsetY;}
+            // console.log("x_left, x_right, y_top, y_bottom = "+x_left+", "+x_right+", "+y_top+", "+y_bottom)
+
+            }
+        });
+
+        //mouseup：フラグをfalse
+        //------------------------------------------------
+        //    canvas_mouse_event=false;
+        //------------------------------------------------
+        $(can).on("mouseup",function(e){
+            canvas_mouse_event = false;
+        });
+
+        let idnum=1; //fish毎にidを付与
+        //born_btnをクリックしたら新しいfish用のHTML追加
+        function addFish(){return  '<img src="" class="fish_img rotate_right" id="fish'+idnum+'">';}
+
+
+        //「誕生」ボタンクリックで水槽に魚のHTMLを追加
+        $("#born_btn").on("click",function(){
+            let fish_sample_num = sample_num;
+
+            try{ //canvasをpngに変換してimg要素で表示
+                let fish_hight = 0;
+                let fish_width = 0;
+                let fish_area = 0;
+                let timer;
+                let $newFish = $(addFish());
+                let old_xposition; 
+                let new_xposition = 0; //誕生した時のx座標はゼロ
+                let new_yposition = 0; //誕生した時のy座標はゼロ
+                let facing_right = 1; //最初は必ず右に移動する,0:左向き 1:右向き
+                let ika_direction = 0; //イカの進行方向 0:右 1:左
+
+                function turn_img(){ //fish画像の向きの変更、作成された魚画像は左向きと仮定
+                    if(old_xposition < new_xposition){ 
+                        console.log("右に移動");
+                        if(facing_right == 0){ //左を向いている時は画像反転
+                            $newFish.addClass("rotate_right");
+                            facing_right = 1;
+                        }
+                    }
+                    if(old_xposition > new_xposition){
+                        console.log("左に移動");
+                        if(facing_right == 1){ //右を向いている時は画像反転
+                            $newFish.removeClass("rotate_right");
+                            facing_right = 0;   
+                        }
+                    }
+                }
+
+                function move0(){ //ニモ
+                    old_xposition = new_xposition; //前の座標
+                    new_xposition = Math.round( Math.random()*70 +10); //新しい座標
+                    turn_img(); //画像の反転
+                    $newFish.animate({
+                        'top': Math.round( Math.random()*25 +30) + "%",
+                        'left': new_xposition + "%"
+                    }, 1500);
+                }
+                function move1(){ //ドリー
+                    old_xposition = new_xposition; //前の座標
+                    new_xposition = Math.round( Math.random()*70 +10); //新しい座標
+                    turn_img(); //画像の反転
+                    $newFish.animate({
+                        'top': Math.round( Math.random()*50+15) + "%",
+                        'left': new_xposition + "%"
+                    }, 1500);
+                }
+                function move2(){ //カニ
+                    $newFish.removeClass("rotate_right");
+                    old_xposition = new_xposition; //前の座標
+                    new_xposition = Math.round( Math.random()*75+8); //新しい座標
+                    turn_img(); //画像の反転
+                    $newFish.animate({
+                        'top': Math.round( Math.random()*3+72) + "%",
+                        'left': new_xposition + "%"
+                    }, 2000);
+                }
+                function move3(){ //イカ
+                    if(ika_direction == 0 && new_xposition < 80){ //右に進行かつ水槽の右端ではない場合
+                        new_xposition += Math.random()*3+7;
+                        console.log("右に移動");
+                    }else{
+                        ika_direction = 1; //左に進行方向転換
+                        if(new_xposition >= 15){ //水槽の左端に到達するまで左に移動
+                            new_xposition -= (Math.random()*3 + 7);
+                            console.log("左に移動");
+                        }else{
+                            ika_direction = 0; //水槽の左端に到達したら右に進行方向転換
+                            new_xposition += (Math.random()*3 + 7);
+                            console.log("右に進行方向転換");
+                        }
+                    }
+
+                    //通常はup、水槽の上端まで上がったらx座標そのままでdown
+                    if(new_yposition < 35){ 
+                        console.log("down");
+                        new_yposition = 90;
+                        $newFish.animate({
+                            'top': new_yposition + "%",
+                            // 'left': new_xposition + "%"
+                        }, 3000);
+                    }else{
+                        console.log("up"); //30前後ずつup
+                        new_yposition -= (Math.random()*5 + 20);
+                        $newFish.animate({
+                            'top': new_yposition + "%",
+                            'left': new_xposition + "%"
+                        }, 1000);
+                    }
+
+                    $newFish.removeClass("rotate_right");
+                    //ランダムでy軸回転のアクション
+                    if(Math.random()>0.5){ 
+                        $newFish.addClass("rotate_360");
+                        $newFish.removeClass("rotate_0");
+                    }else{
+                        $newFish.addClass("rotate_0");
+                        $newFish.removeClass("rotate_360");
+                    }
+                    
+                    console.log("x:"+new_xposition+", y:"+new_yposition);   
+                }
+
+                if(fish_sample_num == 0){ //ニモ
+                    clearInterval(timer);
+                    timer = setInterval(function(){move0()}, 3000);
+                    console.log("ニモ");
+                }
+                if(fish_sample_num == 1){ //ドリー
+                    clearInterval(timer);
+                    timer = setInterval(function(){move1()}, 2000);
+                    console.log("ドリー");
+                }
+                if(fish_sample_num == 2){ //カニ
+                    clearInterval(timer);
+                    timer = setInterval(function(){move2()}, 5000);
+                    console.log("カニ");
+                }
+                if(fish_sample_num == 3){ //イカ
+                    clearInterval(timer);
+                    timer = setInterval(function(){move3()}, 4000);
+                    console.log("イカ");
+                }
+                //魚の体積計測
+                $newFish.fish_width = x_right - x_left; //fish 幅
+                $newFish.fish_height = y_bottom - y_top; //fish 高さ
+                $newFish.fish_area = $newFish.fish_width * $newFish.fish_height; //fish 面積
+                console.log("幅 "+$newFish.fish_width+", 高さ "+$newFish.fish_height+", 面積 "+$newFish.fish_area);
+                $('#aquarium').append($newFish); //水槽にfish用HTMLを追加
+
+                //canvasの画像データをURL形式の文字列に変換
+                let img_png_src = can.toDataURL(); 
+                document.getElementById("fish"+idnum).src = img_png_src; //png要素のsrc属性に指定
+                idnum++;
+                ctx.beginPath(); //座標初期化
+                // ctx.clearRect(0,0,can.width,can.height); //canvas全消し
+                // $("#da_wrap").css("background-image","none"); //見本消去
+                x_left = x_right = y_top = y_bottom = 0;
+            }catch(e){
+                document.getElementsByName("fish").alt = "失敗";
+            }
+        });
+
+        //#clear_btn：クリアーボタンAction
+        //-----------------------------------------------------------------
+        //    ctx.beginPath();
+        //    ctx.clearRect(0, 0, can.width, can.height);
+        //-----------------------------------------------------------------
+        $("#clear_btn").on("click",function(){
+            ctx.beginPath(); //座標初期化
+            ctx.clearRect(0,0,can.width,can.height); //全消し
+            $("#da_wrap").css("background-image","none"); //見本消去
+        });
+
+        $("#save_btn").on("click",function(){
+            // LocalStorageに保存する
+            let base64 = can.toDataURL(); 
+            window.localStorage.setItem("saveKey", base64);
+            console.log("save");
+        });
+        $("#restore_btn").on("click",function(){
+            // LocalStroageからデータを取得する
+            var base64 = window.localStorage.getItem("saveKey");
+            console.log(base64);
+            // Imageオブジェクトを作成し、src属性にデータを設定する
+            var image = new Image();
+            image.src = base64;
+            image.onload = function(){
+               // 画像の読み込みが終わったら、Canvasに画像を反映する。
+                ctx.drawImage(image, 0, 0);
+                console.log("restore");
+            }
+        });
+
+        //ドラッグ中にポインターがcanvasから離れたらcanvas_mouse_eventをfalseに変更
+        $(can).on("mouseout",function(){
+            canvas_mouse_event = false;
+            console.log("mouse out");
+        });
+
+    </script>
+</body>
+
+</html>
