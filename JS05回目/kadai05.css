@@ -1,0 +1,50 @@
+html, body {
+  height: 100%;
+}
+p{
+  line-height: 100%;
+}
+h1 {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+}
+#title_wrap {
+  text-align: center;
+}
+#myMap {
+  width: 50%;
+  height: 50%;
+  float: right;
+}
+#output_area{
+  width: 50%;
+  display: flex;  
+  flex-wrap: wrap;
+}
+#bmap_wrap, #geocode_wrap {
+  width: 100%;
+}
+#lunchtime{width: 100%;}
+/* #lunchtime-value{font-weight: bold;} */
+
+/* #geocode{
+  width: 100%;
+  float: left;
+} */
+#direction_wrap{
+  width: 50%;
+  float: left;
+}
+#direction{
+  display: none;
+}
+#gnavi_wrap{
+  width: 50%;
+  float: right;
+}
+table{border-collapse: collapse;}
+table tr{border-bottom:1px solid#add8e6;}
+table tr:visited {color: #000;text-decoration: none;}
+table td:first-child{font-weight: bold;}
+table tr:hover {background:#add8e6;}

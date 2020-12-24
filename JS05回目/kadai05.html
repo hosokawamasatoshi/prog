@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>寄り道ナビ</title>
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src='https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=AlJTOYW31RC1JWsSq3nKC5SpXMm2lGLhjvHg0SFQtW2DxErWu4VbwORVO0RGRGOb' async defer></script>
+<script src="js/BmapQuery.js"></script>
+<link rel="stylesheet" href="kadai05.css">
+<body>
+<div id="title_wrap">
+  <h1>寄り道ナビ</h1>
+</div>
+<!------Direction Module入手------------->
+<div class="directionsContainer">
+  <div id="directionsPanel"></div>
+  <div id="directionsItinerary"></div>
+</div>
+<!-- ※※※ MAP表示エリア ※※※ -->
+<div id="myMap"></div>
+
+<div id="output_area">
+  <!-- ※※※ BingMapsエリア ※※※ -->
+  <div id="bmap_wrap">
+    <h1>BingMaps</h1>
+    <div>
+      <p>出発:<input type="text" id="from" value=""></p>
+      <p>到着:<input id="to" value=""></p>
+      <select id="mode">
+        <option value="driving">車</option>
+        <option value="walking">徒歩</option>
+      </select>
+      <input type="button" id="search" value="ルート検索">
+    </div>
+  </div>
+  <!-- ※※※ 時刻表示エリア ※※※ -->
+  <div>
+    <h1>スケジュール</h1>
+    <p id="current_time">出発時刻：</p>
+    <p id="travel_time">移動時間：</p>
+    <!-- ※※※ レンジスライダー ※※※ -->
+    <div id="lunchtime">
+      <p>食事時間：<span id="lunchtime-value"></span>分 &nbsp;&nbsp;&nbsp;&nbsp;15分<input type="range"  id="lunchtime_range" min="15" max="90" value="30" step="15">90分</p>
+    </div>
+    <p id="arraival_time">到着時刻：</p>
+  </div>
+  <!-- ※※※ ジオコード表示 ※※※ -->
+  <!-- <div id="geocode_wrap">
+    <h1>ジオコード</h1>
+    <p>クリック：</p><div id="geocode1"></div>
+    <p>飲食店：</p><div id="geocode2"></div>
+  </div> -->
+
+</div>
+<!-- ※※※ ルート表示 ※※※ -->
+<div id="direction_wrap">
+  <div id="direction"></div>
+</div>
+<!-- ※※※ ぐるなび飲食店表示 ※※※ -->
+<div id="gnavi_wrap">
+  <h1>ぐるなび</h1>
+  <table id="gnavi_table">
+    <tr>
+      <!-- <th></th>
+      <th>店舗名</th>
+      <th>営業時間</th> -->
+    </tr>
+  </table>
+</div>
+<script>
+
+//現在時刻取得
+const time_now = new Date();
+const c_time = time_now.getHours() + "時" + time_now.getMinutes() + "分";
+$("#current_time").append(c_time);
+
+//レンジスライダー（食事時間）取得
+const inputElem = document.getElementById('lunchtime_range'); // input要素
+const currentValueElem = document.getElementById('lunchtime-value'); // 埋め込む先のspan要素
+const setCurrentValue = (val) => { // 現在の値をspanに埋め込む関数
+  currentValueElem.innerText = val;
+}
+const rangeOnChange = (e) =>{ // inputイベント時に値をセットする関数
+  setCurrentValue(e.target.value);
+}
+window.onload = () => {
+  inputElem.addEventListener('input', rangeOnChange); // スライダー変化時にイベントを発火
+  setCurrentValue(inputElem.value); // ページ読み込み時に値をセット
+}
+
+let click_num = 1;
+
+//****************************************************************************************
+// BingMaps&BmapQuery
+//****************************************************************************************
+//Init
+function GetMap(){
+  //------------------------------------------------------------------------
+  //1. Instance
+  //------------------------------------------------------------------------
+  const map = new Bmap("#myMap");
+
+  Microsoft.Maps.loadModule('Microsoft.Maps.Directions', function () {
+    //Create an instance of the directions manager.
+    var directionsManager = new Microsoft.Maps.Directions.DirectionsManager(map);
+    //Specify where to display the route instructions.
+    // directionsManager.setRenderOptions({ itineraryContainer: '#directionsItinerary' });
+    //Specify the where to display the input panel
+    // directionsManager.showInputPanel('directionsPanel');
+  });
+  //------------------------------------------------------------------------
+  //2. Display Map
+  //   startMap(lat, lon, "MapType", Zoom[1~20]);
+  //   MapType:[load, aerial,canvasDark,canvasLight,birdseye,grayscale,streetside]
+  //--------------------------------------------------
+  map.geolocation(function(data) {
+    const lat = data.coords.latitude; //現在地を取得
+    const lon = data.coords.longitude;
+    map.startMap(lat, lon, "load", 15);
+  });
+
+  //------------------------------------------------------------------------
+  //3. Directions
+  // map.direction("#rootView", "from" , "to", waypoint[array]);
+  // !! 日本地図で表示してる場合のみルート検索可能（各国毎）以下パラメータ指定で制御も可能 !!
+  // +  [ English => https://www.bing.com/...&setLang=en&setMkt=en-US ]
+  // +  [ Japan   => https://www.bing.com/...&setLang=ja&setMkt=ja-JP ]
+  //------------------------------------------------------------------------
+  //ルート検索ボタンクリックでルート表示
+  document.getElementById("search").onclick = function (data) {
+    // console.log(data.view.navigator);                   //Get Geocode ObjectData
+    //Get From,To
+    const from  = document.getElementById("from").value;  //StartPoint
+    const to    = document.getElementById("to").value;    //EndPoint
+    const mode  = document.getElementById("mode").value;  //RouteMode[walking,driving]
+
+    //経由地あり
+    // const array = ["新宿", "恵比寿"]; //Waypoints...
+    map.direction("#direction", mode, from, to, []); //Direction Methed
+    console.log(map);                   //Get Geocode ObjectData
+
+    //クリックで座標を取得
+    //----------------------------------------------------
+    //3. Geocode(2 patterns)
+    // getGeocode("searchQuery",callback);
+    //----------------------------------------------------
+    //B.Get geocode of click location //目的地のジオコード取得
+    map.onGeocode("click", function(data){
+      console.log(data);                   //Get Geocode ObjectData
+      let geo_lat1 = data.location.latitude;  //Get latitude
+      let geo_lon1 = data.location.longitude; //Get longitude
+      // document.querySelector("#geocode1").innerHTML='lat:'+geo_lat1+', lon:'+geo_lon1;
+
+      //*****************************************************
+      // Click Event
+      // ぐるなびAPIへデータRequest → APIサーバーからresponseデータ取得
+      //*****************************************************
+        //送信データをObject変数で用意
+        //参考URL:https://api.gnavi.co.jp/api/manual/restsearch/
+      let tlog_data = {
+        keyid:"2ef8f1bae9df19139fe7c01db7dde2b4",
+        latitude:geo_lat1,
+        longitude:geo_lon1,
+        range:3
+      };
+
+      //Ajax（非同期通信）
+      //'https://api.gnavi.co.jp/RestSearchAPI/v3/
+      axios.get('https://api.gnavi.co.jp/ForeignRestSearchAPI/v3/', {
+        params:tlog_data
+      }).then(function (response) {
+        //データ受信成功！！showData関数にデータを渡す
+        deleteData();
+        showData(response.data);
+      }).catch(function (error) {
+        console.log(error);//通信Error
+        deleteData();
+        $("#gnavi_table").append('<tr><td> ★★ 該当なし ★★ </td></tr>');
+      }).then(function () {
+        //console.log("Last");//通信OK/Error後に処理を必ずさせたい場合
+      });
+    });
+  };
+
+  //*****************************************************
+  //ぐるなびデータ表示処理
+  //*****************************************************
+  function showData(data){
+    console.log(data.rest); //データ確認用
+    //データを繰り返し処理で取得
+    const len  = data.rest.length; //データ数を取得
+    for( let i=0; i<len; i++){
+      // $("#gnavi_table").append('<tr><td><input type="radio" name="restaurant" value=i></td><td>' + data.rest[i].name + '</td><td>'+data.rest[i].category+'</td></tr>');
+      $("#gnavi_table").append('<tr><td><input type="radio" name="restaurant" value=i></td><td>' + data.rest[i].name.name + '</td><td><img src='+data.rest[i].image_url.thumbnail+'></td></tr>');
+    };
+
+    //テーブルの行をクリックしたらラジオボタンにチェックを入れる
+    $(document).ready(function() {
+      $('table tr').click(function() { // tr要素をクリックでイベント発火
+        let $c = $(this).children('td').children('input[type=radio]'); //td要素からチェックボックスを探す
+        if($c.prop('checked')){
+          $c.prop('checked','');
+        }else{
+          $c.prop('checked','checked');
+          //チェックした飲食店のジオコード取得
+          let row_num = this.rowIndex-1;
+          // let geo_lat2 = data.rest[row_num].latitude;
+          // let geo_lon2 = data.rest[row_num].longitude;
+          let geo_lat2 = data.rest[row_num].location.latitude;
+          let geo_lon2 = data.rest[row_num].location.longitude;
+          // document.querySelector("#geocode2").innerHTML='lat:'+geo_lat2+', lon:'+geo_lon2;
+          
+          //緯度経度から地名/住所を取得
+          const location = map.setLocation(geo_lat2, geo_lon2); //緯度・経度をオブジェクトに変換
+          map.reverseGeocode(location, function(data){ //3.data変数の中に住所が入る  
+
+          //★★★ ルートをクリア ★★★
+            // directionsManager.clearAll();
+            // directionsManager.clearDisplay();
+            //経由地ありで地図を再表示
+            const from2  = document.getElementById("from").value;  //StartPoint
+            const to2    = document.getElementById("to").value;    //EndPoint
+            const mode2  = document.getElementById("mode").value;  //RouteMode[walking,driving]
+            const array2 = [data]; //Waypoints...
+            map.direction("#direction", mode2, from2, to2, array2); //Direction Methed
+          });
+
+          //所要時間をHTMLから取得
+          var travelduration
+          function get_travelduration(){
+            let tdh = document.getElementsByClassName("drHours");
+            let tdm = document.getElementsByClassName("drMins");
+            let tdh_num = 0;
+            let tdm_num = Number(tdm[0].innerHTML)
+            if(tdh[0].innerHTML != 0){tdh_num = tdh[0].innerHTML*60;}
+            travelduration = tdh_num+tdm_num;
+            $("#travel_time").html("移動時間："+travelduration+"分");
+          }
+          
+          function get_time(){
+            var time_arrive = new Date(+new Date()+(travelduration*60*1000)+(inputElem.value*60*1000));
+            var options = {hour: "2-digit", minute: "2-digit"};
+            time_arrive.toLocaleDateString("ja-JP", options);
+            let a_time = time_arrive.getHours() + "時" + time_arrive.getMinutes() + "分";
+            $("#arraival_time").html("到着時間："+a_time);
+          }
+          //読み込み完了時に実行
+          setTimeout(get_travelduration, 2000);
+          setTimeout(get_time, 2001);
+        }
+      }); 
+    });
+  }
+
+  //地図をクリックする度に前のぐるなび一覧を消去
+  function deleteData(){
+    var table = document.getElementById("gnavi_table");
+    var rowLen = table.rows.length;
+    //上の行から削除していくと下の行がずれていくので下から検査
+    for (var i = rowLen-1; i > 0; i--) {
+      table.deleteRow(i);
+    }
+  }
+}
+</script>
+</body>
+</html>
