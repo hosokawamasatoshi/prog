@@ -3,35 +3,117 @@ html, body {
 }
 p{
   line-height: 100%;
+  text-align: center;
 }
 h1 {
-  padding: 0;
+  font-size: 200%;
   margin: 0;
-  font-size: 100%;
+}
+h2{
+  font-size: 200%;
+  font-weight: unset;
+  color: darkorange;
 }
 #title_wrap {
+  margin: 5px;
   text-align: center;
 }
 #myMap {
-  width: 50%;
-  height: 50%;
-  float: right;
+  margin: 0 auto;
+  height: 300px;
+  width: 80%;
 }
-#output_area{
-  width: 50%;
+#myMap2,#myMap3 {
+  width: 25%;
+  height: 25%;
+  display: inline;
+  float: left;
+  /* display: none; */
+}
+#output_area1{
+  width: 90%;
+  margin: 0 auto;
   display: flex;  
   flex-wrap: wrap;
+  text-align: center;
 }
-#bmap_wrap, #geocode_wrap {
+#current_time,#arraival_time{
+  font-size: 200%;
+  color:#0084CD;
+}
+#output_area2{
   width: 100%;
+  text-align: center;
+}
+#mode{
+  margin: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+input[type="radio"] {
+  display: none;
+}
+#box1{
+  width: 25%;
+  align-items: center;
+}
+#box2{
+  width: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#box3{width: 40%;}
+#box4{
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+#box4-1{width: 10%;}
+#box5{width: 200px;}
+#arrow{
+  height: 30%;
+  transform: rotateY(180deg);
+}
+#waypoint{align-items: center;}
+input{
+  padding: 10px;
+  font-size: 20px;
+  text-align: center;
+  border-radius:10px;
+  outline: none;
+  border: 1px solid #0084CD;
+}
+.triangle-right {
+  display: inline-block;
+  border-style: solid;
+  border-width: 14px 0 14px 24px;
+  border-color: transparent transparent transparent #000;
 }
 #lunchtime{width: 100%;}
-/* #lunchtime-value{font-weight: bold;} */
-
-/* #geocode{
-  width: 100%;
-  float: left;
-} */
+#lunchtime input{width: 90%;}
+#mt_wrap p{display: inline;vertical-align: center;}
+#meal_time{font-weight: bold;}
+#search{
+  padding: 20px 30px;
+  font-size: 25px;
+  background: #0084CD;
+  color: #fff;
+  border: none;
+  box-shadow: none;
+}
+.trans_img{
+  width: auto;
+  height: 80px;
+  margin-right: 20px;
+}
+input[type="radio"] + label img {
+  opacity:0.3;
+}
+input[type="radio"]:checked + label img {
+  opacity:1;
+}
 #direction_wrap{
   width: 50%;
   float: left;
@@ -40,11 +122,17 @@ h1 {
   display: none;
 }
 #gnavi_wrap{
-  width: 50%;
-  float: right;
+  width: 80%;
+  margin: 10px auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
 }
-table{border-collapse: collapse;}
-table tr{border-bottom:1px solid#add8e6;}
-table tr:visited {color: #000;text-decoration: none;}
-table td:first-child{font-weight: bold;}
-table tr:hover {background:#add8e6;}
+.gshop{
+  width: 23%;
+  padding: 10px;
+}
+.gshop:hover {background: #e6e6fa;}
+.shop_name{font-weight: bold;}
+.shop_sp{font-weight: 8%;}
+.gshop img{height: 100px;}
