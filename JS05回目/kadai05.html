@@ -11,63 +11,73 @@
 <link rel="stylesheet" href="kadai05.css">
 <body>
 <div id="title_wrap">
-  <h1>寄り道ナビ</h1>
+  <h1>途中で何食べる？</h1>
 </div>
 <!------Direction Module入手------------->
 <div class="directionsContainer">
   <div id="directionsPanel"></div>
   <div id="directionsItinerary"></div>
 </div>
+<div id="output_area1">
+  <div id="box1">
+    <h2>出発</h2>
+    <input type="text" id="from" value="">
+    <p id="current_time"></p>
+  </div>
+  <div id="box2">
+    <img id="arrow" src="img/arrow.png">
+    <!-- <p id="travel_time"></p> -->
+  </div>
+  <div id="box3">
+    <div id="lunchtime">
+      <h2>飲食店</h2>
+      <input type="text" id="waypoint" value="">
+    </div>
+    <div id="box4">
+      <div id="box4-1">
+        <!-- <p>到着</p> -->
+        <!-- <p id="rest1_time"></p> -->
+      </div>
+      <div id="mt_wrap">
+        <p id="meal_time">食事時間&nbsp;<span id="lunchtime-value"></span>分</p>&nbsp;&nbsp;&nbsp;
+        <p>15分<input type="range"  id="lunchtime_range" min="15" max="90" value="30" step="15">90分</p>
+      </div>
+      <div id="box4-1">
+        <!-- <p>出発</p> -->
+        <!-- <p id="rest1_time"></p> -->
+      </div>
+    </div>
+  </div>
+  <div id="box2">
+    <img id="arrow" src="img/arrow.png">
+    <!-- <p id="travel_time"></p> -->
+  </div>
+  <div id="box1">
+    <h2>到着</h2>
+    <input type="text" id="to" value="">
+    <p id="arraival_time"></p>
+  </div>
+</div>
+<div id="output_area2">
+  <div  id="mode">
+    <div id="box5"><input  id="mode1" type="radio" name="trans" checked>
+    <label for="mode1" value="driving"><img class="trans_img" src="img/car.png"></label></div>
+    <div id="box5"><input type="button" id="search" value="ルート検索"></div>
+    <div id="box5"><input  id="mode2" type="radio" name="trans">
+    <label for="mode2" value="walking"><img class="trans_img" src="img/walking_man.png"></label></div>
+  </div>
 <!-- ※※※ MAP表示エリア ※※※ -->
 <div id="myMap"></div>
-
-<div id="output_area">
-  <!-- ※※※ BingMapsエリア ※※※ -->
-  <div id="bmap_wrap">
-    <h1>BingMaps</h1>
-    <div>
-      <p>出発:<input type="text" id="from" value=""></p>
-      <p>到着:<input id="to" value=""></p>
-      <select id="mode">
-        <option value="driving">車</option>
-        <option value="walking">徒歩</option>
-      </select>
-      <input type="button" id="search" value="ルート検索">
-    </div>
-  </div>
-  <!-- ※※※ 時刻表示エリア ※※※ -->
-  <div>
-    <h1>スケジュール</h1>
-    <p id="current_time">出発時刻：</p>
-    <p id="travel_time">移動時間：</p>
-    <!-- ※※※ レンジスライダー ※※※ -->
-    <div id="lunchtime">
-      <p>食事時間：<span id="lunchtime-value"></span>分 &nbsp;&nbsp;&nbsp;&nbsp;15分<input type="range"  id="lunchtime_range" min="15" max="90" value="30" step="15">90分</p>
-    </div>
-    <p id="arraival_time">到着時刻：</p>
-  </div>
-  <!-- ※※※ ジオコード表示 ※※※ -->
-  <!-- <div id="geocode_wrap">
-    <h1>ジオコード</h1>
-    <p>クリック：</p><div id="geocode1"></div>
-    <p>飲食店：</p><div id="geocode2"></div>
-  </div> -->
-
-</div>
 <!-- ※※※ ルート表示 ※※※ -->
 <div id="direction_wrap">
   <div id="direction"></div>
+  <!-- <div id="direction2"></div>
+  <div id="direction3"></div> -->
 </div>
 <!-- ※※※ ぐるなび飲食店表示 ※※※ -->
 <div id="gnavi_wrap">
-  <h1>ぐるなび</h1>
-  <table id="gnavi_table">
-    <tr>
-      <!-- <th></th>
-      <th>店舗名</th>
-      <th>営業時間</th> -->
-    </tr>
-  </table>
+  <!-- <table id="gnavi_table"><tr></tr></table> -->
+  <!-- <div id="gnavi"></div> -->
 </div>
 <script>
 
@@ -101,6 +111,8 @@ function GetMap(){
   //1. Instance
   //------------------------------------------------------------------------
   const map = new Bmap("#myMap");
+  // const map2 = new Bmap("#myMap2");
+  // const map3 = new Bmap("#myMap3");
 
   Microsoft.Maps.loadModule('Microsoft.Maps.Directions', function () {
     //Create an instance of the directions manager.
@@ -110,6 +122,11 @@ function GetMap(){
     //Specify the where to display the input panel
     // directionsManager.showInputPanel('directionsPanel');
   });
+
+  // Microsoft.Maps.Events.addHandler(map, 'mousewheel', function(e) {
+  //   e.handled = true;
+  //   return true;
+  // });
   //------------------------------------------------------------------------
   //2. Display Map
   //   startMap(lat, lon, "MapType", Zoom[1~20]);
@@ -121,6 +138,12 @@ function GetMap(){
     map.startMap(lat, lon, "load", 15);
   });
 
+  //地図をクリックする度に前のぐるなび一覧を消去
+  function deleteData(){
+    const element = document.querySelector('.gshop');
+    if(element){$('.gshop').remove();}
+  }
+
   //------------------------------------------------------------------------
   //3. Directions
   // map.direction("#rootView", "from" , "to", waypoint[array]);
@@ -131,7 +154,6 @@ function GetMap(){
   //ルート検索ボタンクリックでルート表示
   document.getElementById("search").onclick = function (data) {
     // console.log(data.view.navigator);                   //Get Geocode ObjectData
-    //Get From,To
     const from  = document.getElementById("from").value;  //StartPoint
     const to    = document.getElementById("to").value;    //EndPoint
     const mode  = document.getElementById("mode").value;  //RouteMode[walking,driving]
@@ -151,7 +173,6 @@ function GetMap(){
       console.log(data);                   //Get Geocode ObjectData
       let geo_lat1 = data.location.latitude;  //Get latitude
       let geo_lon1 = data.location.longitude; //Get longitude
-      // document.querySelector("#geocode1").innerHTML='lat:'+geo_lat1+', lon:'+geo_lon1;
 
       //*****************************************************
       // Click Event
@@ -177,7 +198,7 @@ function GetMap(){
       }).catch(function (error) {
         console.log(error);//通信Error
         deleteData();
-        $("#gnavi_table").append('<tr><td> ★★ 該当なし ★★ </td></tr>');
+        // $("#gnavi_table").append('<tr><td> ★★ 該当なし ★★ </td></tr>');
       }).then(function () {
         //console.log("Last");//通信OK/Error後に処理を必ずさせたい場合
       });
@@ -192,29 +213,29 @@ function GetMap(){
     //データを繰り返し処理で取得
     const len  = data.rest.length; //データ数を取得
     for( let i=0; i<len; i++){
-      // $("#gnavi_table").append('<tr><td><input type="radio" name="restaurant" value=i></td><td>' + data.rest[i].name + '</td><td>'+data.rest[i].category+'</td></tr>');
-      $("#gnavi_table").append('<tr><td><input type="radio" name="restaurant" value=i></td><td>' + data.rest[i].name.name + '</td><td><img src='+data.rest[i].image_url.thumbnail+'></td></tr>');
+      $("#gnavi_wrap").append('<div class="gshop" value='+i+'><p class="shop_name">' + data.rest[i].name.name + '</p><img src='+data.rest[i].image_url.thumbnail+'><p class="shop_sp">'+data.rest[i].sales_points.pr_short+'</p></div>');
     };
 
     //テーブルの行をクリックしたらラジオボタンにチェックを入れる
     $(document).ready(function() {
-      $('table tr').click(function() { // tr要素をクリックでイベント発火
-        let $c = $(this).children('td').children('input[type=radio]'); //td要素からチェックボックスを探す
-        if($c.prop('checked')){
-          $c.prop('checked','');
+      $('.gshop').click(function() { // tr要素をクリックでイベント発火
+        if($(this).prop('checked')){
+          $(this).prop('checked','');
         }else{
-          $c.prop('checked','checked');
+          $(this).prop('checked','checked');
           //チェックした飲食店のジオコード取得
-          let row_num = this.rowIndex-1;
-          // let geo_lat2 = data.rest[row_num].latitude;
-          // let geo_lon2 = data.rest[row_num].longitude;
+          let row_num = this.getAttribute('value');
+          // console.log(this.getAttribute('value'));
           let geo_lat2 = data.rest[row_num].location.latitude;
           let geo_lon2 = data.rest[row_num].location.longitude;
-          // document.querySelector("#geocode2").innerHTML='lat:'+geo_lat2+', lon:'+geo_lon2;
-          
+
+          //店名を取得して#waypointに代入
+          let waypoint = data.rest[row_num].name.name;
+          $("#waypoint").val(waypoint);
+
           //緯度経度から地名/住所を取得
           const location = map.setLocation(geo_lat2, geo_lon2); //緯度・経度をオブジェクトに変換
-          map.reverseGeocode(location, function(data){ //3.data変数の中に住所が入る  
+          map.reverseGeocode(location, function(restaurant_data){ //3.data変数の中に住所が入る  
 
           //★★★ ルートをクリア ★★★
             // directionsManager.clearAll();
@@ -223,7 +244,7 @@ function GetMap(){
             const from2  = document.getElementById("from").value;  //StartPoint
             const to2    = document.getElementById("to").value;    //EndPoint
             const mode2  = document.getElementById("mode").value;  //RouteMode[walking,driving]
-            const array2 = [data]; //Waypoints...
+            const array2 = [restaurant_data]; //Waypoints...
             map.direction("#direction", mode2, from2, to2, array2); //Direction Methed
           });
 
@@ -236,15 +257,16 @@ function GetMap(){
             let tdm_num = Number(tdm[0].innerHTML)
             if(tdh[0].innerHTML != 0){tdh_num = tdh[0].innerHTML*60;}
             travelduration = tdh_num+tdm_num;
-            $("#travel_time").html("移動時間："+travelduration+"分");
+            $("#travel_time").html(travelduration);
           }
-          
+
+          //現在時刻に寄り道して目的地に到着するまでの所要時間と食事時間を足して到着時間を算出
           function get_time(){
             var time_arrive = new Date(+new Date()+(travelduration*60*1000)+(inputElem.value*60*1000));
             var options = {hour: "2-digit", minute: "2-digit"};
             time_arrive.toLocaleDateString("ja-JP", options);
             let a_time = time_arrive.getHours() + "時" + time_arrive.getMinutes() + "分";
-            $("#arraival_time").html("到着時間："+a_time);
+            $("#arraival_time").html(a_time);
           }
           //読み込み完了時に実行
           setTimeout(get_travelduration, 2000);
@@ -254,15 +276,6 @@ function GetMap(){
     });
   }
 
-  //地図をクリックする度に前のぐるなび一覧を消去
-  function deleteData(){
-    var table = document.getElementById("gnavi_table");
-    var rowLen = table.rows.length;
-    //上の行から削除していくと下の行がずれていくので下から検査
-    for (var i = rowLen-1; i > 0; i--) {
-      table.deleteRow(i);
-    }
-  }
 }
 </script>
 </body>
