@@ -8,17 +8,16 @@
   <title>テニスダイスキ / ログイン</title>
 </head>
 <body class="background_all">
-    <header></header>
-      <div class="title_logo">
-        <h1>テニスダイスキ</h1>
-      </div>
-    <form method="post" action="login_act.php" class="login_form">
-      <fieldset>
-        <legend>ログイン</legend>
-        <label>ID<br><input type="text" name="u_id"></label><br>
-        <label>PW<br><input type="password" name="u_pw"></label><br>
-        <input type="submit" value="ログイン" id="login_btn">
-      </fieldset>
-    </form>
+  <div class="login_h1">
+    <h1>テニスダイスキ</h1>
+  </div>
+  <form method="post" action="login_act.php" class="login_form">
+    <fieldset>
+      <legend>ログイン</legend>
+      <label>ID<br><input type="text" name="u_id"></label><br>
+      <label>PW<br><input type="password" name="u_pw"></label><br>
+      <input type="submit" value="ログイン" id="login_btn">
+    </fieldset>
+  </form>
 </body>
 </html>

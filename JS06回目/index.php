@@ -17,8 +17,8 @@ if($status==false){
   //Selectデータの数だけ自動でループ fetch：一行ずつ取り出す
   while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
     $view .= '<p  id="post"><div id="post_container">';
-    $view .= '<div id="fb1"><img border="0" src="'.$result["u_imgpath"].'" width="auto" height="50px" alt="ユーザー画像"><br>';
-    $view .= '<span class="font_bold">'.$result["u_name"]."</span></div>";
+    $view .= '<div id="fb1"><a href="user_page_guest.php?u_id='.$result["u_id"].'"><img border="0" src="'.$result["u_imgpath"].'"width="auto" height="50px" alt="ユーザー画像"></a><br>';
+    $view .= '<a class="font_bold href_font" href="user_page_guest.php?u_id='.$result["u_id"].'">'.$result["u_name"]."</a></div>";
     $view .= '<div id="fb2">'.$result["category"].'　　<span class="small_date">'.date('Y年m月d日 H:i', strtotime($result["indate"]))."</span><br><br>";
     $view .= nl2br($result["act"]);
     $view .= '</div></div></p>';

@@ -1,7 +1,7 @@
 <?php
 //POSTデータ取得
 $id       = $_POST["id"];
-$u_id   = $_POST["u_id"];
+$u_id     = $_POST["u_id"];
 $indate   = $_POST["indate"];
 $category = $_POST["category"];
 $act      = $_POST["act"];

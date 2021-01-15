@@ -1,16 +1,7 @@
 <?php
-//入力チェック データが送られてきていないか空の場合はエラー
-if(
-  !isset($_POST["u_id"]) || $_POST["u_id"]=="" ||
-  !isset($_POST["u_pw"]) || $_POST["u_pw"]=="" ||
-  !isset($_POST["u_name"]) || $_POST["u_name"]==""
-){
-  exit("ParamError");
-}
-
 session_start();
-$u_id      = $_POST["u_id"];
-$u_pw      = $_POST["u_pw"];
+$u_id     = $_POST["u_id"];
+$u_pw     = $_POST["u_pw"];
 $u_name   = $_POST["u_name"];
 $life_flg = 1;
 
@@ -18,19 +9,21 @@ $life_flg = 1;
 include("funcs.php");
 $pdo = db_connect();
 
-//ユーザー名の重複確認 *作成中*
-// function u_id_exists($pdo, $u_name){
-//   $sql = "SELECT COUNT(u_id) FROM gs_user_table WHERE u_id = :u_name";
-//   $stmt = $pdo->prepare($sql);
-//   $stmt->bindValue(':u_name', $u_name);
-//   $stmt->execute();
-//   $count=$stmt->fetch(PDO::FETCH_ASSOC); //結果を配列で取得
-//   if($count['count(u_id)']>0){ //件数を取得
-//     return true;
-//   }else{
-//     return false;
-//   }
-// }
+//入力チェック データが送られてきていないか空の場合はエラー
+if(
+  !isset($_POST["u_id"]) || $_POST["u_id"]=="" ||
+  !isset($_POST["u_pw"]) || $_POST["u_pw"]=="" ||
+  !isset($_POST["u_name"]) || $_POST["u_name"]==""
+){
+  exit("ParamError：未入力の項目があります");
+}elseif(
+//ID・ユーザーネームの重複確認
+  $stmt = $pdo->prepare('SELECT * FROM gs_user_table WHERE u_id = :u_id');
+  $stmt->bindValue(':u_id', $u_id, PDO::PARAM_INT);
+  $status = $stmt->execute();
+){
+  exit("ParamError：そのID・ユーザーネームはすでに登録されています");
+}
 
 //データ登録SQL作成
 $sql = "INSERT INTO gs_user_table(id,u_id,u_name,u_pw,sign_date,life_flg)VALUES(NULL,:a1,:a2,:a3,sysdate(),:a4)";
