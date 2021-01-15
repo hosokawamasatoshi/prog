@@ -1,9 +1,3 @@
-<?php
-// session_start();
-// $u_name = $_SESSION["u_name"];
-
-?>
-
 <!DOCTYPE html>
 <html lang="ja">
 <script type="text/javascript" src="//webfonts.sakura.ne.jp/js/sakurav3.js"></script>
