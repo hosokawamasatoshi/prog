@@ -16,14 +16,17 @@ if(
   !isset($_POST["u_name"]) || $_POST["u_name"]==""
 ){
   exit("ParamError：未入力の項目があります");
-}elseif(
-//ID・ユーザーネームの重複確認
-  $stmt = $pdo->prepare('SELECT * FROM gs_user_table WHERE u_id = :u_id');
-  $stmt->bindValue(':u_id', $u_id, PDO::PARAM_INT);
-  $status = $stmt->execute();
-){
-  exit("ParamError：そのID・ユーザーネームはすでに登録されています");
 }
+// elseif(
+//ID・ユーザーネームの重複確認
+//$sql = "SELECT * FROM gs_an_table INNER JOIN gs_user_table ON gs_an_table.u_id = gs_user_table.u_id ORDER BY indate DESC";
+//   $sql2 = "SELECT * FROM gs_user_table WHERE u_id=:u_id";
+//   $stmt2 = $pdo->prepare($sql2);
+//   $stmt2->bindValue(':u_id', $u_id, PDO::PARAM_STR);
+//   $status = $stmt2->execute();
+// ){
+//   exit("ParamError：そのID・ユーザーネームはすでに登録されています");
+// }
 
 //データ登録SQL作成
 $sql = "INSERT INTO gs_user_table(id,u_id,u_name,u_pw,sign_date,life_flg)VALUES(NULL,:a1,:a2,:a3,sysdate(),:a4)";

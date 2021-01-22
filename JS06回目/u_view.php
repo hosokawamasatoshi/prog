@@ -8,12 +8,11 @@ loginCheck(); //セッションチェック 前ページと現在のSESSION_ID�
 $u_id   = $_SESSION["u_id"];
 $u_name = $_SESSION["u_name"];
 
-$id = $_GET["id"];
+$post_id = $_GET["post_id"]; //全ページからの受け取り
 
-// $sql = 'SELECT * FROM gs_an_table INNER JOIN gs_user_table ON gs_an_table.u_id = gs_user_table.u_id WHERE gs_an_table.id=:id ORDER BY indate DESC';
-$sql = 'SELECT * FROM gs_an_table WHERE id=:id';
+$sql = 'SELECT * FROM gs_an_table WHERE post_id=:post_id';
 $stmt = $pdo->prepare($sql);
-$stmt->bindValue(':id', $id, PDO::PARAM_INT);
+$stmt->bindValue(':post_id', $post_id, PDO::PARAM_INT);
 $status = $stmt->execute();
 
 if($status==false){
@@ -34,26 +33,28 @@ if($status==false){
   <script type="text/javascript" src="//webfonts.sakura.ne.jp/js/sakurav3.js"></script>
   <title>テニスダイスキ</title>
 </head>
-<header></header>
 <body>
-<form method="post" action="update.php">
+<form method="post" action="update.php" enctype="multipart/form-data">
   <div id="act_input">
-    <fieldset id="act_fs">
-      <label><input id="act_date" type="text" name="indate" value="<?=$row["indate"]?>"></label><br>
-      <div class="radio_wrap">
-        <label><input type="radio" name="category" value="練習" 
-          <?php if(!empty($row['category'])&&$row['category']==="練習"){echo 'checked';}?>>練習</label>
-        <label><input type="radio" name="category" value="試合" 
-          <?php if(!empty($row['category'])&&$row['category']==="試合"){echo 'checked';}?>>試合</label>
-        <label><input type="radio" name="category" value="その他" 
-          <?php if(!empty($row['category'])&&$row['category']==="その他"){echo 'checked';}?>>その他</label>
+    <div class="act_wrap">
+      <div class="flex_wrap">
+        <div><input id="act_date" type="text" name="indate" value="<?=$row["indate"]?>"></div><br>
+        <div class="radio_wrap">
+          <label><input type="radio" name="category" value="練習" 
+            <?php if(!empty($row['category'])&&$row['category']==="練習"){echo 'checked';}?>>練習</label>
+          <label><input type="radio" name="category" value="試合" 
+            <?php if(!empty($row['category'])&&$row['category']==="試合"){echo 'checked';}?>>試合</label>
+          <label><input type="radio" name="category" value="その他" 
+            <?php if(!empty($row['category'])&&$row['category']==="その他"){echo 'checked';}?>>その他</label>
+        </div>
       </div>
-      <!-- <label><input type="text" name="category" value="<?=$row["category"]?>"></label><br> -->
-      <label><textarea rows="10" cols="60" name="act"><?=$row["act"]?></textarea></label><br>
-      <input type="hidden" name="id" value="<?=$id?>">
+      <textarea rows="10" name="act"><?=$row["act"]?></textarea><br>
+      <label id="prof_label"><input type="file" name="image" accept="image/*"></label>
+      <input type="hidden" name="post_id" value="<?=$post_id?>">
       <input type="hidden" name="u_id" value="<?=$u_id?>">
+      <input type="hidden" name="save_img_name" value="<?=$row["save_img_name"]?>">
       <input id="activity_btn" type="submit" value="保存">
-    </fieldset>
+    </div>
   </div>
 </form>
 

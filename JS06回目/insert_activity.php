@@ -14,26 +14,59 @@ if(
 
 //POSTデータ取得
 // $name = $_POST["name"];
-$indate = $_POST["indate"];
+$indate   = $_POST["indate"];
 $category = $_POST["category"];
-$act = $_POST["act"];
+$act      = $_POST["act"];
+//画像関連取得
+$file       = $_FILES["image"]; //ファイルデータ受け取り
+$img_name   = basename($file["name"]);
+$tmp_path   = $file["tmp_name"];
+$img_error  = $file["error"];
+$img_size   = $file["size"];
+$upload_dir = './img/';
+$save_img_name = date('YmdHis').$img_name;
+echo $file.'<br>';
+echo $act.'<br>';
+echo $tmp_path.'<br>';
+echo $upload_dir.'<br>';
+echo $save_img_name.'<br>';
 
-// echo $name;
+//画像サイズチェック
+if($img_size > 1048576 || $img_error == 2){
+  echo 'ファイルサイズは１MB未満にしてください。';
+}
+//拡張子チェック
+$allow_ext = array('jpg','jpeg','png');
+$file_ext  = pathinfo($img_name, PATHINFO_EXTENSION);
+if(!in_array(strtolower($file_ext), $allow_ext)){
+  echo '画像ファイルを添付してください。';
+}
+//ファイルはあるか
+if(is_uploaded_file("$tmp_path")){
+  if(move_uploaded_file($tmp_path, $upload_dir.$save_img_name)){
+    echo $img_name.'を'.$upload_dir.'にアップしました。';
+  }else{
+    echo 'ファイルが保存できませんでした。';
+  }
+} else {
+  echo 'ファイルが選択されていません。';
+  echo '<br>';
+}
 
 //DB接続 定型文 PDOを使えるようにするためのコマンド
 include("funcs.php");
 $pdo = db_connect();
 
 //データ登録SQL作成
-$sql = "INSERT INTO gs_an_table(id,u_id,indate,category,act)VALUES(NULL, :a1, :a2, :a3, :a4)";
-
+$sql = "INSERT INTO gs_an_table(id,u_id,indate,category,act,save_img_name)VALUES(NULL,:a1,:a2,:a3,:a4,:a5)";
 $stmt = $pdo->prepare($sql);
 
 //bindValue 連携させる
-$stmt->bindValue(':a1', $u_id, PDO::PARAM_STR); //数値の場合 PARAM_INT
-$stmt->bindValue(':a2', $indate, PDO::PARAM_STR);
-$stmt->bindValue(':a3', $category, PDO::PARAM_STR);
-$stmt->bindValue(':a4', $act, PDO::PARAM_STR);
+$stmt->bindValue(':a1', $u_id,          PDO::PARAM_STR); //数値の場合 PARAM_INT
+$stmt->bindValue(':a2', $indate,        PDO::PARAM_STR);
+$stmt->bindValue(':a3', $category,      PDO::PARAM_STR);
+$stmt->bindValue(':a4', $act,           PDO::PARAM_STR);
+$stmt->bindValue(':a5', $upload_dir.$save_img_name, PDO::PARAM_STR);
 $status = $stmt->execute(); //実行する
 
 //データ登録（実行）後処理
@@ -43,7 +76,7 @@ if($status==false){
   exit("QueryError:".$error[2]);
 }else{
   //act.phpへリダイレクト
-  header("Location: select.php");
+  // header("Location: select.php");
   exit;
 }
 ?>
