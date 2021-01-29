@@ -1,8 +1,8 @@
 <?php
 session_start();
-$u_id     = $_POST["u_id"];
-$u_pw     = $_POST["u_pw"];
-$u_name   = $_POST["u_name"];
+$u_id     = $_SESSION["u_id"];
+$u_pw     = $_SESSION["u_pw"];
+$u_name   = $_SESSION["u_name"];
 $life_flg = 1;
 
 //DB接続
@@ -10,22 +10,12 @@ include("funcs.php");
 $pdo = db_connect();
 
 //入力チェック データが送られてきていないか空の場合はエラー
-if(
-  !isset($_POST["u_id"]) || $_POST["u_id"]=="" ||
-  !isset($_POST["u_pw"]) || $_POST["u_pw"]=="" ||
-  !isset($_POST["u_name"]) || $_POST["u_name"]==""
-){
-  exit("ParamError：未入力の項目があります");
-}
-// elseif(
-//ID・ユーザーネームの重複確認
-//$sql = "SELECT * FROM gs_an_table INNER JOIN gs_user_table ON gs_an_table.u_id = gs_user_table.u_id ORDER BY indate DESC";
-//   $sql2 = "SELECT * FROM gs_user_table WHERE u_id=:u_id";
-//   $stmt2 = $pdo->prepare($sql2);
-//   $stmt2->bindValue(':u_id', $u_id, PDO::PARAM_STR);
-//   $status = $stmt2->execute();
+// if(
+//   !isset($u_id) || $u_id=="" ||
+//   !isset($u_pw) || $u_pw=="" ||
+//   !isset($u_name) || $u_name==""
 // ){
-//   exit("ParamError：そのID・ユーザーネームはすでに登録されています");
+//   exit("ParamError：未入力の項目があります");
 // }
 
 //データ登録SQL作成

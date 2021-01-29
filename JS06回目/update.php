@@ -13,6 +13,7 @@ $tmp_path      = $file["tmp_name"];
 $img_error     = $file["error"];
 $img_size      = $file["size"];
 $upload_dir    = './img/';
+
 //画像のあるなしで分岐
 if(is_uploaded_file($file["tmp_name"])){     //a.アップロードあり
   $save_img_name = $upload_dir.date('YmdHis').$img_name;
@@ -24,10 +25,6 @@ if(is_uploaded_file($file["tmp_name"])){     //a.アップロードあり
   $save_img_name = "";
   echo 'echo c<br>';
 }
-echo $_POST["save_img_name"].'<br>';
-echo $tmp_path.'<br>';
-echo $upload_dir.'<br>';
-echo $save_img_name.'<br>';
 
 //画像サイズチェック
 if($img_size > 1048576 || $img_error == 2){
@@ -47,8 +44,7 @@ if(is_uploaded_file("$tmp_path")){
     echo 'ファイルが保存できませんでした。';
   }
 } else {
-  echo 'ファイルが選択されていません。';
-  echo '<br>';
+  echo 'ファイルが選択されていません。<br>';
 }
 
 //DB接続 定型文 PDOを使えるようにするためのコマンド

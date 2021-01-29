@@ -16,10 +16,11 @@ if($status==false){
   while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
     $view .= '<p  id="post"><div id="post_container">';
     $view .= '<div id="fb1"><a href="user_page_guest.php?u_id='.$result["u_id"].'"><img border="0" src="'.$result["u_imgpath"].'" width="auto" height="50px" alt="ユーザー画像"></a><br>';
-    $view .= '<a class="font_bold href_font" href="user_page_guest.php?u_id='.$result["u_id"].'">'.$result["u_name"]."</a></div>";
-    $view .= '<div id="fb2">'.$result["category"].'　　<span class="small_date">'.date('Y年m月d日 H:i', strtotime($result["indate"]))."</span>";
-    $view .= '<a class="float_right" href="posts_guest.php?post_id='.$result["post_id"].'"><i class="far fa-heart heart"> '.$result["heart_num"].'</i><i class="far fa-comment comment"> '.$result["comment_num"].'</i></a><br><br>';
-    $view .= nl2br($result["act"]);
+    $view .= '<a class="href_font" href="user_page_guest.php?u_id='.$result["u_id"].'">'.$result["u_name"]."</a></div>";
+    $view .= '<div id="fb2"><a id="category_block">'.$result["category"].'</a><a class="small_date">'.date('Y年m月d日 H:i', strtotime($result["indate"]))."</a>";
+    $view .= '<div class="float_right"><i class="far fa-heart like"> '.$result["like_num"].'</i>';
+    $view .= '<a href="posts_guest.php?post_id='.$result["post_id"].'"><i class="far fa-comment comment"> '.$result["comment_num"].'</i></a></div><br><br>';
+    $view .= '<a class="act_text" href="posts_guest.php?post_id='.$result["post_id"].'">'.nl2br($result["act"]).'</a>';
     if($result["save_img_name"]){$view .= '<br><br><img border="0" src="'.$result["save_img_name"].'" width="auto" height="200px" alt="テニ活画像">';}
     $view .= '</div></div></p>';
   }

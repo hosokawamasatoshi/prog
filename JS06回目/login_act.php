@@ -1,7 +1,7 @@
 <?php
 session_start();
-$lid = $_POST["u_id"];
-$lpw = $_POST["u_pw"];
+$lid = $_SESSION["u_id"];
+$lpw = $_SESSION["u_pw"];
 
 //DB接続します
 include("funcs.php");
@@ -9,7 +9,7 @@ $pdo = db_connect();
 
 //データ登録SQL作成
 $sql = "SELECT * FROM gs_user_table WHERE u_id=:u_id AND u_pw=:u_pw";
-$stmt = $pdo->prepare($sql);
+$stmt = $pdo->prepare($sql);  
 $stmt->bindValue(':u_id', $lid);
 $stmt->bindValue(':u_pw', $lpw);
 $res = $stmt->execute();
@@ -28,6 +28,7 @@ if($val["id"] != ""){
   $_SESSION["chk_ssid"] = session_id(); //ユニークなsession_idを付与
   $_SESSION["u_id"] = $val['u_id'];
   $_SESSION["u_name"] = $val['u_name'];
+  $_SESSION["u_imgpath"] = $val['u_imgpath'];
 
   header("Location: select.php");
 }else{

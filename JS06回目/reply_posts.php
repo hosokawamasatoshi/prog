@@ -3,7 +3,7 @@ session_start();
 $u_id = $_SESSION["u_id"];
 
 //POSTデータ取得
-$r_post_id = $_POST["r_post_id"];
+$r_post_id = $_POST["r_post_id"]; 
 $r_comment = $_POST["r_comment"];
 
 echo $u_id.'<br>';

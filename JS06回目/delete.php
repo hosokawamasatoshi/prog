@@ -1,6 +1,6 @@
 <?php
 //GETでidを取得
-$id = $_GET["post_id"];
+$post_id = $_GET["post_id"];
 
 //DB接続します
 include("funcs.php");

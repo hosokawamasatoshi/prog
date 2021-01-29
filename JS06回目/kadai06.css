@@ -16,9 +16,11 @@ body{
 .hero_bg{
   height: 500px;
 }
-a{
-  text-decoration: none;
-}
+a{text-decoration: none;}
+a:link{text-decoration: none;}
+a:visited{text-decoration: none;}
+.act_text:link{color: black;text-decoration:none;}
+.act_text:visited{color: black;text-decoration:none;}
 .href_font:link,.href_font:visited{
   color: black;
 }
@@ -28,7 +30,7 @@ h1{
   font-family: "Shin Maru Go Futoline";
   text-align: center;
 }
-.heart,.comment{
+.like,.comment{
   margin-right:20px;
   text-decoration: none;
   color: dimgray;
@@ -44,11 +46,42 @@ h1{
   width: 100%;
   z-index: 300;
 }
+.fs_30{font-size: 30px;}
 .font_bold{font-family: "Shin Go Regular";font-weight: bold;}
 .font_green{color: #228b22;font-family: "Shin Go Regular";font-size: 75%;font-weight: none;}
-.link_small{color: dimgray;font-size: 75%;text-decoration: none;}
-.float_right{float: right;display: block;margin-left: 20px;}
-.text-align{text-align: right;}
+#category_block{display:inline-block;margin-right:50px;}
+.va_t{vertical-align:top;}
+.ta_right{text-align: right;}
+.link_small{display:inline-block;color: dimgray;font-size:75%;text-decoration: none;}
+.float_left{float: left; margin-right: 20px;}
+.float_right{float: right; margin-left: 20px;}
+/* #tatop{vertical-align: top;} */
+/* .text-align{text-align: right;} */
+.ime-inactive { ime-mode : inactive;}
+.disp_inblk{display: inline-block;}
+#name_disp{float: left; width: 75%;padding-left: 10px;}
+#prof_edit{float: right; width: 25%;text-align: right;}
+#staticdata_wrap{
+  width: auto;
+  float: right;
+  padding: 15px;
+  margin: 10px 0;
+  align-items: flex-end;
+  background: linear-gradient( 130deg,#2e8b57,#3cb371);
+  border-radius: 15px;
+  /* line-height: 200%; */
+}
+.staticdata{
+  display:inline-block;
+  color: #fff;
+  font-size: 75%;
+}
+#error_disp{
+  margin-bottom: 50px;
+  text-align: center;
+  color: yellow;
+  font-size: 30px;
+}
 
 .nav_container{
   width: 100%;
@@ -69,10 +102,6 @@ h1{
 .nav_container3{
   width: 100%;
   height: 100px;
-  /* background: linear-gradient( 130deg, rgba(247, 70, 123, 0.8), rgba(240, 158, 8, 0.8));
-  position: absolute;
-  top: 0;
-  left: 0; */
   justify-content: space-between;
   display: flex;
   z-index: 150;
@@ -85,20 +114,25 @@ h1{
   color: #fff;
   z-index: 100;
 }
-#gnavi img{
-  vertical-align: middle;
+#login_nav img{
+  background-color: white;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  background-position: center center; 
+}
+.dammy_img{
+  height: 50px;
 }
 #gnavi li,#login_nav li,#login_nav_guest li{
   display: inline;
-  vertical-align: middle;
   margin-right: 20px;
   color: black;
-
 }
-
 .gnavs, .lnavs{
+  margin: 0 auto;
+  vertical-align: middle;
   color: #fff;
-  font-weight: bold;
   text-decoration: none;
   position: relative;
   display: inline-block;
@@ -130,8 +164,23 @@ h1{
 }
 .user_name{
   font-size: 20px;
-  font-weight: bold;
 }
+.user_name2{
+  font-size: 30px;
+}
+#prof_img_wrap{
+  width: 20%;
+  text-align: center;
+  margin: 0 auto;
+  /* border: 1px solid black; */
+}
+#prof_img{
+  margin-top: 0 auto;
+  display: block;
+  text-align: center;
+  /* border: 1px solid black; */
+}
+#prof_info{width: 80%;display: inline-block;}
 #container{
   width: 800px;
   margin: 0 auto;
@@ -148,6 +197,9 @@ h1{
 }
 #fb1{width: 20%;text-align: center;}
 #fb2{width: 80%;text-align: left;}
+.prof_fb1{display: flex;flex-direction: row;}
+.prof_fb2{display: flex;flex-direction: row;margin-top: 10px;}
+.bkborder{border: 1px solid black;}
 #post{
   font-family: "UD Shin Go Conde90 L";
   border-bottom: 3px solid rgba(209, 247, 209, 0.6);
